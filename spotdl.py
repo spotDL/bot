@@ -1,8 +1,7 @@
 import discord
-from discord_slash import SlashCommand # Importing the newly installed library.
+from discord_slash import SlashCommand
 
-discord_token = ""
-guild_ids = [] # Put your server ID in this array.
+from credentials import discord_token, guild_ids
 
 
 client = discord.Client(intents=discord.Intents.all())

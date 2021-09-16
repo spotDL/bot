@@ -16,7 +16,7 @@ async def on_ready():
              description="Play a round of ping-pong",
              guild_ids=guild_ids)
 async def _ping(ctx): 
-    await ctx.send(f"Pong! ({client.latency*1000:.1f}ms)")
+    await ctx.send(f"Pong! ({client.latency*1000:.1f}ms)", hidden=True)
 
 @slash.slash(name="zsh",
              description="Instructions for users with Zsh terminals",
@@ -57,14 +57,20 @@ async def _zsh(ctx):
              ]
         )
 async def update(ctx, location: str, clean: bool = False):
-    if location == "pip":
-        msg = "**Update spotDL:**\n`pip install -U spotdl`"
-    elif location in ["dev", "master"]:
-        msg = f"**Update spotDL from {location}**\n**1.** `pip uninstall spotdl`\n**2.** `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`"
-
+    msg = ""
     if clean == True:
-        msg = "**Full"
+        msg += f"**Clean installation from `{location}`**\n - `pip install pip-autoremove`\n - `pip-autoremove spotdl -y`\n - `pip cache purge`"
+    else:
+        msg += f"**Update spotDL from `{location}`**\n - `pip uninstall spotdl`"
+    
+    if location == "pip":
+        msg += "\n - `pip install -U spotdl`"
+    elif location in ["dev", "master"]:
+        msg += f"\n - `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`"
+
     await ctx.send(content=msg)
+
+
 # async def update(ctx, from: str):
 #     await ctx.send("a")
 

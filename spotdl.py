@@ -51,7 +51,7 @@ async def _zsh(ctx):
                     required=False
                 ),
                 create_option(
-                    name="v3",
+                    name="pip3",
                     description="Show pip3 intead of pip?",
                     option_type=5,
                     required=False
@@ -142,6 +142,38 @@ async def ffmpeg(ctx, not_found: bool = False, instructions: bool = False, no_de
 
     await ctx.send(embed=embed)
     
+
+@slash.slash(name="version",
+             description="Instructions for checking versions",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                     name="app",
+                     description="Instructions to check which app's version?",
+                     option_type=3,
+                     required=True,
+                     choices=[
+                         create_choice(name="spotDL", value="spotDL"),
+                         create_choice(name="FFmpeg", value="FFmpeg")
+                     ]
+                 ),
+                create_option(
+                    name="pip3",
+                    description="Show pip3 intead of pip?",
+                    option_type=5,
+                    required=False
+                )
+             ])
+async def version(ctx, app: str, pip3: bool = False):
+    if app == "spotDL":
+        msg = "**Check spotDL version**\n`pip show spotdl`"
+    elif app == "FFmpeg":
+        msg = "**Check FFmpeg version**\n`ffmpeg -version`"
+    
+    if pip3 == True:
+        msg = msg.replace("pip ", "pip3 ")
+
+    await ctx.send(content=msg)
 
 # async def update(ctx, from: str):
 #     await ctx.send("a")

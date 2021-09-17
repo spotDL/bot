@@ -82,23 +82,66 @@ async def update(ctx, location: str, clean: bool = False, force: bool = False, v
     await ctx.send(content=msg)
 
 @slash.slash(name="ffmpeg",
-             description="",
+             description="FFmpeg issue FAQ",
              guild_ids=guild_ids,
              options=[
                  create_option(
-                    name="",
-                    description="",
-                    option_type=0,
+                    name="not_found",
+                    description="FFmpeg was not found?",
+                    option_type=5,
                     required=False,
-                    choices=[
-                        create_choice(name="", value=""),
-                        create_choice(name="", value="")
-                    ]
+                 ),
+                 create_option(
+                     name="instructions",
+                     description="Instructions for installing FFmpeg",
+                     option_type=5,
+                     required=False
+                 ),
+                 create_option(
+                     name="no_detect",
+                     description="FFmpeg versionn couldn't be detected?",
+                     option_type=5,
+                     required=False
+                 ),
+                 create_option(
+                     name="specify_path",
+                     description="Specify a path to your FFmpeg binary",
+                     option_type=5,
+                     required=False
                  )
              ]
              )
-async def ffmpeg(ctx, # TODO):
-    pass
+async def ffmpeg(ctx, not_found: bool = False, instructions: bool = False, no_detect: bool = False, specify_path: bool = False):
+    embed = discord.Embed(title="FFmpeg and spotDL", description="spotDL requires FFmpeg v4.2 or above", color=discord.Color.blue())
+    def not_found():
+        embed.add_field(name="FFmpeg was not found, spotDL cannot continue?", value="spotDL either requires FFmpeg on PATH, or the binary to be specified via the -f flag.\nEnsure FFmpeg is installed!")
+    def instructions():
+        embed.add_field(name="Instructions to install FFmpeg", value="Windows: [Download Binaries](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) then [follow tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)\n\
+                                                                      OSX: `brew install ffmpeg`\nUbuntu:`sudo apt install ffmpeg -y`")    
+    def no_detect():
+        embed.add_field(name="FFmpeg version couldn't be detected?", value="Add the `--ignore-ffmpeg-version` flag to your spotDL command.\nThis is common if you are using a nightly FFmpeg build.", inline=False)
+    def specify_path():
+        embed.add_field(name="Specify a path to your FFmpeg binary?", value="Instead of adding FFmpeg to PATH, you can specify a path to the binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path//to/ffmpeg.exe [trackUrl]`")
+
+    # TODO NOTE the line below isn't behaving as expected. The else function is always being used...?
+    if True in [not_found, instructions]:
+        print("True!")
+        if not_found == True:
+            not_found()
+        if instructions == True:
+            instructions()
+        if no_detect == True:
+            no_detect()
+        if specify_path == True:
+            specify_path()
+    else:
+        not_found()
+        instructions()
+        no_detect()
+        specify_path()
+
+    await ctx.send(embed=embed)
+    
 
 # async def update(ctx, from: str):
 #     await ctx.send("a")

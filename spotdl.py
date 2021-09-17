@@ -43,20 +43,41 @@ async def _zsh(ctx):
                     description="Use pip-autoremove?",
                     option_type=5,
                     required=False
+                ),
+                create_option(
+                    name="force",
+                    description="Use --force-reinstall flag?",
+                    option_type=5,
+                    required=False
+                ),
+                create_option(
+                    name="v3",
+                    description="Show pip3 intead of pip?",
+                    option_type=5,
+                    required=False
                 )
              ]
         )
-async def update(ctx, location: str, clean: bool = False):
+
+async def update(ctx, location: str, clean: bool = False, force: bool = False, v3: bool = False):
     msg = ""
     if clean == True:
         msg += f"**Clean installation from `{location}`**\n - `pip install pip-autoremove`\n - `pip-autoremove spotdl -y`\n - `pip cache purge`"
     else:
         msg += f"**Update spotDL from `{location}`**\n - `pip uninstall spotdl`"
     
-    if location == "pip":
+    if location == "pip" and clean == True:
         msg += "\n - `pip install -U spotdl`"
+    elif location == "pip":
+        msg = "`pip install -U spotdl`"
     elif location in ["dev", "master"]:
-        msg += f"\n - `pip install https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`"
+        msg += f"\n - `pip install -U https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`"
+
+    if force == True:
+        msg = "`pip install -U --force-reinstall spotdl`"
+
+    if v3 == True:
+        msg = msg.replace("pip ", "pip3 ")
 
     await ctx.send(content=msg)
 

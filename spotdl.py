@@ -22,7 +22,7 @@ async def _ping(ctx):
              description="Instructions for users with Zsh terminals",
              guild_ids=guild_ids)
 async def _zsh(ctx):
-    await ctx.send("aa")
+    await ctx.send('If you use Zsh terminal, **put the URL in quotes**, e.g.\n`spotdl "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b?si=TNiemvONQviXQpWPSiR2Gw"`')
 
 @slash.slash(name="update",
              description="Various update instructions",
@@ -34,20 +34,10 @@ async def _zsh(ctx):
                     option_type=3,
                     required=True,
                     choices=[
-                        create_choice(
-                            name="pip",
-                            value="pip"
-                                ),
-                        create_choice(
-                            name="master",
-                            value="master"
-                                ),
-                        create_choice(
-                            name="dev",
-                            value="dev"
-                                )
-                        ]
-                        ),
+                        create_choice(name="pip", value="pip"),
+                        create_choice(name="master", value="master"),
+                        create_choice(name="dev",value="dev")
+                        ]),
                create_option(
                     name="clean",
                     description="Use pip-autoremove?",
@@ -70,6 +60,24 @@ async def update(ctx, location: str, clean: bool = False):
 
     await ctx.send(content=msg)
 
+@slash.slash(name="ffmpeg",
+             description="",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                    name="",
+                    description="",
+                    option_type=0,
+                    required=False,
+                    choices=[
+                        create_choice(name="", value=""),
+                        create_choice(name="", value="")
+                    ]
+                 )
+             ]
+             )
+async def ffmpeg(ctx, # TODO):
+    pass
 
 # async def update(ctx, from: str):
 #     await ctx.send("a")
@@ -85,5 +93,15 @@ async def update(ctx, location: str, clean: bool = False):
 #              guild_ids=guild_ids)
 # async def _a(ctx):
 #     await ctx.send("")
+
+# Auto responses
+@client.listen()
+async def on_message(message):
+    if "tutorial" in message.content.lower():
+        # in this case don't respond with the word "Tutorial" or you will call the on_message event recursively
+        await message.channel.send('This is that you want http://youtube.com/fazttech')
+        await client.process_commands(message)
+
+
 
 client.run(discord_token)

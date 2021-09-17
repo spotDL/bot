@@ -115,13 +115,6 @@ async def ffmpeg(ctx, # TODO):
 # async def _a(ctx):
 #     await ctx.send("")
 
-# Auto responses
-@client.listen()
-async def on_message(message):
-    if "tutorial" in message.content.lower():
-        # in this case don't respond with the word "Tutorial" or you will call the on_message event recursively
-        await message.channel.send('This is that you want http://youtube.com/fazttech')
-        await client.process_commands(message)
 
 
 

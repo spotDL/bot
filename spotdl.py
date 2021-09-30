@@ -197,10 +197,35 @@ async def path(ctx, shell: str):
 async def dl_branch(ctx):
     await ctx.send("**You must remove `&dl_branch=1` from URLs, since the `&` is a control operator in terminal**")
 
+@slash.slash(name="outputformat",
+             description="How to change output format? Options?",
+             guild_ids=guild_ids)
+async def outputformat(ctx):
+    await ctx.send("**How to change output format?\nUse the `-of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] -of opus`")
+
+@slash.slash(name="certificates",
+             description="Installing SSL certificates on OSX",
+             guild_ids=guild_ids)
+async def certificates(ctx):
+    await ctx.send("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
+
+@slash.slash(name="download",
+             description="Where did my files download?",
+             guild_ids=guild_ids)
+async def download(ctx):
+    embed = discord.Embed(title="Where are my files downloaded? / How can I change download location?", color=discord.Color.black())
+    embed.add_field(name="By default, spotDL downloads to the Working Directory/Where you ran spotDL from", value="You can `cd` to the folder you want to run spotDL from")
+    embed.add_field(name="Changing output directory", value="Use the `-o` or `--output` flag to change output directory, e.g. `spotdl [trackUrl] -o /home/music/`")
+    embed.add_field(name="Windows Default & Tip", value="By default, Windows will download in `C:\\Users\\YOURNAME\\`.\n__Tip__\n`SHIFT +RIGHT CLICK` in desired folder and select \'Open Powershell Window Here\'")
+    embed.add_image(url="https://i.imgur.com/aDP8oEU.png")
+
+
 @client.event
 async def on_message(message):
-    if "DLL load failed while importing cpp_process" in message.content:
-        await message.reply("example")
+    if "dll load failed while importing cpp_process" in message.content.lower():
+        await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
+    elif "unable to get audio stream" in message.content.lower():
+        await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
     elif "tester123silver" in message.content:
         await message.reply("got you!")
 

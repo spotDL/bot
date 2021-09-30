@@ -6,6 +6,7 @@ from credentials import discord_token, guild_ids
 
 
 client = discord.Client(intents=discord.Intents.all())
+# discord.Bot()
 slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
 
 @client.event
@@ -58,7 +59,6 @@ async def _zsh(ctx):
                 )
              ]
         )
-
 async def update(ctx, location: str, clean: bool = False, force: bool = False, v3: bool = False):
     msg = ""
     if clean == True:
@@ -174,6 +174,47 @@ async def version(ctx, app: str, pip3: bool = False):
         msg = msg.replace("pip ", "pip3 ")
 
     await ctx.send(content=msg)
+
+@slash.slash(name="path",
+             description="How to add things to PATH",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                     name="shell",
+                     description="What Shell is the user running? (Or Windows)",
+                     option_type=3,
+                     required=True,
+                     choices=[
+                         create_choice(name="Windows", value="Windows"),
+                         create_choice(name="zshrc", value="zshrc"),
+                         create_choice(name="bashrc", value="bashrc")
+                     ]
+                 )
+             ])
+async def path(ctx, shell: str):
+    if shell == "Windows":
+        msg = "In Start Menu, Search `env` then click `Edit the system environment variables`, then click `Environment Variables` in the bottom right.\nIn System variables, scroll down to `Path` and double Click. You can now view or edit the PATH variable."
+        
+    elif shell == "zshrc":
+        msg = "Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc`\nThen run `source ~/.zshrc`"
+    elif shell == "bashrc":
+        msg = "Add `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`\nThen run `source ~/.bashrc`"
+    
+    await ctx.send(content=msg)
+
+@slash.slash(name="dl_branch",
+             description="Removing &dl_branch=1 from URLs",
+             guild_ids=guild_ids)
+async def dl_branch(ctx):
+    await ctx.send("**You must remove `&dl_branch=1` from URLs, since the `&` is a control operator in terminal**")
+
+@client.event
+async def on_message(message):
+    if "DLL load failed while importing cpp_process" in message.content:
+        await message.reply("example")
+    elif "tester123silver" in message.content:
+        await message.reply("got you!")
+
 
 # async def update(ctx, from: str):
 #     await ctx.send("a")

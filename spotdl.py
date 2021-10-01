@@ -130,7 +130,6 @@ async def ffmpeg(ctx, not_found: bool = False, instructions: bool = False, no_de
         embed.add_field(name="Specify a path to your FFmpeg binary?", value="Instead of adding FFmpeg to PATH, you can specify a path to the binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path//to/ffmpeg.exe [trackUrl]`")
 
     await ctx.send(embed=embed)
-    
 
 @slash.slash(name="version",
              description="Instructions for checking versions",
@@ -238,7 +237,8 @@ async def testsong(ctx):
                      choices=[
                          create_choice(name="spotDL", value="spotDL"),
                          create_choice(name="Python", value="Python"),
-                         create_choice(name="FFmpeg", value="FFmpeg")
+                         create_choice(name="FFmpeg", value="FFmpeg"),
+                         create_choice(name="Termux", value="Termux")
                      ]
                  )
              ])
@@ -248,9 +248,96 @@ async def install(ctx, program: str):
     elif program == "Python":
         msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
     elif program == "FFmpeg":
-        msg = "**Installing FFmpeg:**\n\n\n**Windows:** Download binaries from <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z> then follow this tutorial: <https://windowsloop.com/install-ffmpeg-windows-10/>.\n\
+        msg = "**Installing FFmpeg:**\n\n**Windows:** Download binaries from <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z> then follow this tutorial: <https://windowsloop.com/install-ffmpeg-windows-10/>.\n\
 **OSX (M1):** <https://www.youtube.com/watch?v=wOZ7p7Zmz2s>\n**OSX (Other):** `brew install ffmpeg`\n**Ubuntu:** `sudo apt install ffmpeg -y`"
+    elif program == "Termux":
+        msg = "**spotDL has a dedicated Termux installation script.**\n`curl -L https://github.com/spotDL/spotify-downloader/raw/master/termux/setup_spotdl.sh | sh`\n\nspotDL will install at `/data/data/com.termux/files/usr/bin/spotdl/`, and **Songs download to `$HOME/storage/shared/songs`**"
+    
     await ctx.send(msg)
+
+@slash.slash(name="github",
+             description="Links to different spotDL documentation",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                     name="file",
+                     description="What file do you want to link to?",
+                     option_type=3,
+                     required=True,
+                     choices=[
+                         create_choice(name="readme", value="readme"),
+                         create_choice(name="installguide", value="installguide"),
+                         create_choice(name="contributing", value="contributing"),
+                         create_choice(name="corevalues", value="corevalues"),
+                         create_choice(name="license", value="license")
+                     ]
+                 )
+             ])
+async def github(ctx, file: str):
+    if file == "readme":
+        msg = "Detailed information in our README.md\n<https://github.com/spotDL/spotify-downloader/blob/master/README.md>"
+    elif file == "installguide":
+        msg = "Installation Guide at <https://github.com/spotDL/spotify-downloader/blob/master/docs/INSTALLATION.md>"
+    elif file == "contributing":
+        msg = "Contributing Guidelines at <https://github.com/spotDL/spotify-downloader/blob/master/docs/CONTRIBUTING.md>"
+    elif file == "corevalues":
+        msg = "Core Values at <https://github.com/spotDL/spotify-downloader/blob/master/docs/CORE_VALUES.md>"
+    elif file == "license":
+        msg = "Our License at <https://github.com/spotDL/spotify-downloader/blob/master/LICENSE>"
+    
+    await ctx.send(msg)
+
+@slash.slash(name="quality",
+             description="Info regarding audio quality & bitrate",
+             guild_ids=guild_ids)
+async def quality(ctx):
+    await ctx.send("spotDL automatically gets the highest quality audio we can from YouTube.")
+
+@slash.slash(name="ytmusic",
+             description="YouTube Music being required",
+             guild_ids=guild_ids)
+async def ytmusic(ctx):
+    await ctx.send("**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>")
+
+@slash.slash(name="fromyoutube",
+             description="spotDL downloads from YouTube",
+             guild_ids=guild_ids)
+async def fromyoutube(ctx):
+    await ctx.send("spotDL downloads from YouTube if a match is found. https://i.imgur.com/tCaTBTt.png")
+
+
+
+
+
+
+
+
+@slash.slash(name="rules",
+             description="Dev prompts for users to follow the rules.",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                     name="rule",
+                     description="Which prompt?",
+                     option_type=3,
+                     required=True,
+                     choices=[
+                         create_choice(name="reply", value="reply"),
+                         create_choice(name="ping", value="ping"),
+                         create_choice(name="channel", value="channel"),
+                     ]
+                 )
+             ])
+async def rules(ctx, rule: str):
+    if rule == "reply":
+        msg = "**Please disable reply pings**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.\nhttps://i.imgur.com/yIxI1RW.png"
+    elif rule == "ping":
+        msg = "**Please don't ping devs**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can."
+    elif rule == "channel":
+        msg = "**Please don't spam your issue across channels**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can."
+
+    await ctx.send(msg)
+
 
 
 @client.event

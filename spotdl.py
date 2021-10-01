@@ -59,7 +59,7 @@ async def _zsh(ctx):
                 )
              ]
         )
-async def update(ctx, location: str, clean: bool = False, force: bool = False, v3: bool = False):
+async def update(ctx, location: str, clean: bool = False, force: bool = False, pip3: bool = False):
     msg = ""
     if clean == True:
         msg += f"**Clean installation from `{location}`**\n - `pip install pip-autoremove`\n - `pip-autoremove spotdl -y`\n - `pip cache purge`"
@@ -76,7 +76,7 @@ async def update(ctx, location: str, clean: bool = False, force: bool = False, v
     if force == True:
         msg = "`pip install -U --force-reinstall spotdl`"
 
-    if v3 == True:
+    if pip3 == True:
         msg = msg.replace("pip ", "pip3 ")
 
     await ctx.send(content=msg)
@@ -201,7 +201,7 @@ async def dl_branch(ctx):
              description="How to change output format? Options?",
              guild_ids=guild_ids)
 async def outputformat(ctx):
-    await ctx.send("**How to change output format?\nUse the `-of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] -of opus`")
+    await ctx.send("**How to change output format?**\nUse the `-of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] -of opus`")
 
 @slash.slash(name="certificates",
              description="Installing SSL certificates on OSX",
@@ -213,16 +213,49 @@ async def certificates(ctx):
              description="Where did my files download?",
              guild_ids=guild_ids)
 async def download(ctx):
-    embed = discord.Embed(title="Where are my files downloaded? / How can I change download location?", color=discord.Color.black())
-    embed.add_field(name="By default, spotDL downloads to the Working Directory/Where you ran spotDL from", value="You can `cd` to the folder you want to run spotDL from")
-    embed.add_field(name="Changing output directory", value="Use the `-o` or `--output` flag to change output directory, e.g. `spotdl [trackUrl] -o /home/music/`")
-    embed.add_field(name="Windows Default & Tip", value="By default, Windows will download in `C:\\Users\\YOURNAME\\`.\n__Tip__\n`SHIFT +RIGHT CLICK` in desired folder and select \'Open Powershell Window Here\'")
-    embed.add_image(url="https://i.imgur.com/aDP8oEU.png")
+    embed = discord.Embed(title="Where are my files downloaded? / How can I change download location?", color=0xFFFFFF)
+    embed.add_field(name="By default, spotDL downloads to the Working Directory/Where you ran spotDL from", value="You can `cd` to the folder you want to run spotDL from", inline=False)
+    embed.add_field(name="Changing output directory", value="Use the `-o` or `--output` flag to change output directory, e.g. `spotdl [trackUrl] -o /home/music/`", inline=False)
+    embed.add_field(name="Windows Default & Tip", value="By default, Windows will download in `C:\\Users\\YOURNAME\\`.\n__Tip__\n`SHIFT +RIGHT CLICK` in desired folder and select \'Open Powershell Window Here\'", inline=False)
+    embed.set_image(url="https://i.imgur.com/aDP8oEU.png")
+    await ctx.send(embed=embed)
+
+@slash.slash(name="testsong",
+             description="spotDL command for our testsong",
+             guild_ids=guild_ids)
+async def testsong(ctx):
+    await ctx.send("**Test Song:**\n`spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`")
+
+@slash.slash(name="install",
+             description="Instructions on installing Python or spotDL",
+             guild_ids=guild_ids,
+             options=[
+                 create_option(
+                     name="program",
+                     description="What program to provide instructions for",
+                     option_type=3,
+                     required=True,
+                     choices=[
+                         create_choice(name="spotDL", value="spotDL"),
+                         create_choice(name="Python", value="Python"),
+                         create_choice(name="FFmpeg", value="FFmpeg")
+                     ]
+                 )
+             ])
+async def install(ctx, program: str):
+    if program == "spotDL":
+        msg = "**How to install spotDL?**\n*(Note: spotDL requires FFmpeg & Python)*\n\nRun `pip install spotdl` in a terminal"
+    elif program == "Python":
+        msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
+    elif program == "FFmpeg":
+        msg = "**Installing FFmpeg:**\n\n\n**Windows:** Download binaries from <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z> then follow this tutorial: <https://windowsloop.com/install-ffmpeg-windows-10/>.\n\
+**OSX (M1):** <https://www.youtube.com/watch?v=wOZ7p7Zmz2s>\n**OSX (Other):** `brew install ffmpeg`\n**Ubuntu:** `sudo apt install ffmpeg -y`"
+    await ctx.send(msg)
 
 
 @client.event
 async def on_message(message):
-    if "dll load failed while importing cpp_process" in message.content.lower():
+    if "dll load failed" in message.content.lower():
         await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
     elif "unable to get audio stream" in message.content.lower():
         await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")

@@ -269,7 +269,8 @@ async def install(ctx, program: str):
                          create_choice(name="installguide", value="installguide"),
                          create_choice(name="contributing", value="contributing"),
                          create_choice(name="corevalues", value="corevalues"),
-                         create_choice(name="license", value="license")
+                         create_choice(name="license", value="license"),
+                         create_choice(name="issues", value="issues"),
                      ]
                  )
              ])
@@ -284,7 +285,9 @@ async def github(ctx, file: str):
         msg = "Core Values at <https://github.com/spotDL/spotify-downloader/blob/master/docs/CORE_VALUES.md>"
     elif file == "license":
         msg = "Our License at <https://github.com/spotDL/spotify-downloader/blob/master/LICENSE>"
-    
+    elif file == "issues":
+        msg = "Our Issues page at <https://github.com/spotDL/spotify-downloader/issues>"
+
     await ctx.send(msg)
 
 @slash.slash(name="quality",
@@ -305,8 +308,15 @@ async def ytmusic(ctx):
 async def fromyoutube(ctx):
     await ctx.send("spotDL downloads from YouTube if a match is found. https://i.imgur.com/tCaTBTt.png")
 
+@slash.slash(name="podcast",
+             description="Info regarding how spotDL cannot download podcasts/episodes",
+             guild_ids=guild_ids)
+async def podcast(ctx):
+    await ctx.send("spotDL does not support downloading podcasts/episodes from Spotify.")
 
-
+# @slash.slash(name="codeblock",
+#              description="How to use Discord Codeblocks",
+#              guild_ids=guild_ids)
 
 
 
@@ -342,12 +352,16 @@ async def rules(ctx, rule: str):
 
 @client.event
 async def on_message(message):
-    if "dll load failed" in message.content.lower():
-        await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
-    elif "unable to get audio stream" in message.content.lower():
-        await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
-    elif "tester123silver" in message.content:
-        await message.reply("got you!")
+    if message.author != client.user:
+        if "dll load failed" in message.content.lower():
+            await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
+        elif "unable to get audio stream" in message.content.lower():
+            await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
+        elif "tester123silver" in message.content.lower():
+            await message.reply(message.author)
+        elif "&dl_branch=1" in message.content.lower():
+            await message.reply("**You must remove `&dl_branch=1` from URLs, since the `&` is a control operator in terminal**")
+
 
 
 # async def update(ctx, from: str):

@@ -421,5 +421,10 @@ async def on_message(message):
             await message.add_reaction("\U0001F6A8") # 🚨
             await message.add_reaction("<:ping:896186295771095040>") # Pinged emoji
             await message.reply(staff_ping)
+        elif "'spotdl' is not recognized" in message.content.lower():
+            msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
+            await message.reply(f"**Python/(site packages) is not added to PATH correctly.**\n{msg} ")
+
+
 
 client.run(discord_token)

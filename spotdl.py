@@ -324,7 +324,11 @@ async def codeblock(ctx):
     embed.add_field(name="How to create codeblocks", value="Put three backticks on the line before and after your code. For example:**\n\n\`\`\`\n[paste code here]\n\`\`\`**\n\ncreates\n```[paste code here]\n```")
     await ctx.send(embed=embed)
 
-
+@slash.slash(name="pickyoutube",
+             description="How do I download a YouTube video with Spotify metadata?",
+             guild_ids=guild_ids)
+async def pickyoutube(ctx):
+    await ctx.send("""You can specify specific YouTube videos to download with Spotify metadata, or vice versa.\nTo do this, use the notation **`spotdl "YouTubeURL|SpotifyURL"`**\nNote that the quote marks (") are essential.""")
 
 
 

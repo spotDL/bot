@@ -1,12 +1,15 @@
 import discord
 from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import SlashCommandPermissionType, ButtonStyle
+from discord_slash.context import ComponentContext
 
 from credentials import discord_token, guild_ids
+import psutil
 
 
 client = discord.Client(intents=discord.Intents.all())
-# discord.Bot()
 slash = SlashCommand(client, sync_commands=True) # Declares slash commands through the client.
 
 @client.event
@@ -352,6 +355,36 @@ async def rules(ctx, rule: str):
         msg = "**Please don't spam your issue across channels**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can."
 
     await ctx.send(msg)
+
+
+@slash.slash(name="admin",
+             description="Administration Commands",
+             guild_ids=guild_ids,
+             default_permission=False,
+             )
+@slash.permission(guild_id=771628785447337985,
+                  permissions=[
+                      create_permission(153001361120690176, SlashCommandPermissionType.USER, True)
+                  ])
+async def admin(ctx):
+    await ctx.send(content="Administration Controls", components=[
+        create_actionrow(
+            create_button(style=ButtonStyle.red, label="Shutdown Bot", custom_id="shutdown"),
+            create_button(style=ButtonStyle.gray, label="VPS Info", custom_id="vps"),
+        )])
+@client.event
+async def on_component(ctx: ComponentContext):
+    if ctx.custom_id == "shutdown":
+        print("Shutting down bot from shutdown command...")
+        await client.get_channel(794782176154615809).send("Bot shutdown by command.")
+        await ctx.edit_origin(content="Shutting down bot...", components=None)
+        await client.close()
+    
+    elif ctx.custom_id == "vps":
+        embed = discord.Embed(title="Bot VPS Info", color=discord.Color.blue())
+        embed.add_field(name="CPU Usage", value=str(psutil.cpu_percent()) + "%")
+        embed.add_field(name="RAM Usage", value=str(psutil.virtual_memory().percent) + "%")
+        await ctx.edit_origin(embed=embed, components=None)
 
 
 

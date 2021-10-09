@@ -206,7 +206,7 @@ async def outputformat(ctx):
              description="Installing SSL certificates on OSX",
              guild_ids=guild_ids)
 async def certificates(ctx):
-    await ctx.send("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
+    await ctx.send("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
 
 @slash.slash(name="download",
              description="Where did my files download?",
@@ -248,8 +248,7 @@ async def install(ctx, program: str):
     elif program == "Python":
         msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
     elif program == "FFmpeg":
-        msg = "**Installing FFmpeg:**\n\n**Windows:** Download binaries from <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z> then follow this tutorial: <https://windowsloop.com/install-ffmpeg-windows-10/>.\n\
-**OSX (M1):** <https://www.youtube.com/watch?v=wOZ7p7Zmz2s>\n**OSX (Other):** `brew install ffmpeg`\n**Ubuntu:** `sudo apt install ffmpeg -y`"
+        msg = "**Installing FFmpeg:**\n\n**Windows:** Download binaries from <https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z> then follow this tutorial: <https://windowsloop.com/install-ffmpeg-windows-10/>.\n**OSX (M1):** <https://www.youtube.com/watch?v=wOZ7p7Zmz2s>\n**OSX (Other):** `brew install ffmpeg`\n**Ubuntu:** `sudo apt install ffmpeg -y`"
     elif program == "Termux":
         msg = "**spotDL has a dedicated Termux installation script.**\n`curl -L https://github.com/spotDL/spotify-downloader/raw/master/termux/setup_spotdl.sh | sh`\n\nspotDL will install at `/data/data/com.termux/files/usr/bin/spotdl/`, and **Songs download to `$HOME/storage/shared/songs`**"
     
@@ -314,9 +313,15 @@ async def fromyoutube(ctx):
 async def podcast(ctx):
     await ctx.send("spotDL does not support downloading podcasts/episodes from Spotify.")
 
-# @slash.slash(name="codeblock",
-#              description="How to use Discord Codeblocks",
-#              guild_ids=guild_ids)
+@slash.slash(name="codeblock",
+             description="How to use Discord Codeblocks",
+             guild_ids=guild_ids)
+async def codeblock(ctx):
+    embed = discord.Embed(title="Using Discord Codeblocks", description="The backtick key **(\`)** is found near the top left of the keyboard, above `TAB` and below `ESCAPE`.", color=discord.Color.blue())
+    embed.add_field(name="How to create codeblocks", value="Put three backticks on the line before and after your code. For example:**\n\n\`\`\`\n[paste code here]\n\`\`\`**\n\ncreates\n```[paste code here]\n```")
+    await ctx.send(embed=embed)
+
+
 
 
 
@@ -350,36 +355,26 @@ async def rules(ctx, rule: str):
 
 
 
+staff_ping = """I have detected that you pinged the Moderation team!
+Please note that this is ONLY for moderation purposes, and should not be used for spotDL assistance.
+The moderation team may not be able to assist you. Please refer to <#796939712828801074>, <#797661959037780019> and if you need to, <#796571887635267614>
+**Remember our teams are human as well! Please wait patiently, we will reply as soon as we can.**"""
+
+
 @client.event
 async def on_message(message):
-    if message.author != client.user:
+    if message.author != client.user: # Only respond if the message's author is NOT the running bot.
         if "dll load failed" in message.content.lower():
             await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
         elif "unable to get audio stream" in message.content.lower():
-            await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relavant version number)")
+            await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
         elif "tester123silver" in message.content.lower():
             await message.reply(message.author)
         elif "&dl_branch=1" in message.content.lower():
             await message.reply("**You must remove `&dl_branch=1` from URLs, since the `&` is a control operator in terminal**")
-
-
-
-# async def update(ctx, from: str):
-#     await ctx.send("a")
-
-# @slash.slash(name="Various install instructions",
-#              description="",
-#              guild_ids=guild_ids)
-# async def _a(ctx):
-#     await ctx.send("")
-
-# @slash.slash(name="",
-#              description="",
-#              guild_ids=guild_ids)
-# async def _a(ctx):
-#     await ctx.send("")
-
-
-
+        elif "<@&798504444534587412>" in message.content.lower():
+            await message.add_reaction("\U0001F6A8") # 🚨
+            await message.add_reaction("<:ping:896186295771095040>") # Pinged emoji
+            await message.reply(staff_ping)
 
 client.run(discord_token)

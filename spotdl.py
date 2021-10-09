@@ -413,8 +413,8 @@ async def on_message(message):
             await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
         elif "unable to get audio stream" in message.content.lower():
             await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
-        elif "tester123silver" in message.content.lower():
-            await message.reply(message.author)
+        elif "could not match any of the results on youtube" in message.content.lower():
+            await message.reply("**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>")
         elif "&dl_branch=1" in message.content.lower():
             await message.reply("**You must remove `&dl_branch=1` from URLs, since the `&` is a control operator in terminal**")
         elif "<@&798504444534587412>" in message.content.lower():
@@ -424,6 +424,9 @@ async def on_message(message):
         elif "'spotdl' is not recognized" in message.content.lower():
             msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
             await message.reply(f"**Python/(site packages) is not added to PATH correctly.**\n{msg} ")
+        elif "error: http error 410: gone" in message.content.lower():
+            await message.reply("This error has been patched. Update spotDL - `pip install -U --force spotdl`")
+
 
 
 

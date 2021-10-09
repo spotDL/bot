@@ -7,6 +7,8 @@ from discord_slash.context import ComponentContext
 
 from credentials import discord_token, guild_ids
 import psutil
+import os
+import sys
 
 
 client = discord.Client(intents=discord.Intents.all())
@@ -374,16 +376,22 @@ async def admin(ctx):
     await ctx.send(content="Administration Controls", components=[
         create_actionrow(
             create_button(style=ButtonStyle.red, label="Shutdown Bot", custom_id="shutdown"),
+            create_button(style=ButtonStyle.blue, label="Restart Bot", custom_id="restart"),
             create_button(style=ButtonStyle.gray, label="VPS Info", custom_id="vps"),
         )])
 @client.event
 async def on_component(ctx: ComponentContext):
     if ctx.custom_id == "shutdown":
         print("Shutting down bot from shutdown command...")
-        await client.get_channel(794782176154615809).send("Bot shutdown by command.")
         await ctx.edit_origin(content="Shutting down bot...", components=None)
         await client.close()
     
+    elif ctx.custom_id == "restart":
+        print("Restarting bot from restart command...")
+        await ctx.edit_origin(content="Restarting bot...", components=None)
+        print("\n\n\n\n\n\n")
+        os.execv(sys.executable, ['python'] + sys.argv)
+
     elif ctx.custom_id == "vps":
         embed = discord.Embed(title="Bot VPS Info", color=discord.Color.blue())
         embed.add_field(name="CPU Usage", value=str(psutil.cpu_percent()) + "%")

@@ -382,6 +382,10 @@ async def admin(ctx):
 @client.event
 async def on_component(ctx: ComponentContext):
     if ctx.custom_id == "shutdown":
+    if ctx.author_id != 153001361120690176:
+        await ctx.send(content="You don't have permission to do this!", hidden=True)
+
+    elif ctx.custom_id == "shutdown":
         print("Shutting down bot from shutdown command...")
         await ctx.edit_origin(content="Shutting down bot...", components=None)
         await client.close()

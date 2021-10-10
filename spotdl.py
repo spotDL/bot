@@ -16,7 +16,11 @@ slash = SlashCommand(client, sync_commands=True) # Declares slash commands throu
 
 @client.event
 async def on_ready():
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="over spotDL"))
     print("Ready!")
+    
+maintenance = False
+
 
 @slash.slash(name="ping",
              description="Play a round of ping-pong",
@@ -363,6 +367,7 @@ async def rules(ctx, rule: str):
     await ctx.send(msg)
 
 
+
 @slash.slash(name="admin",
              description="Administration Commands",
              guild_ids=guild_ids,
@@ -373,15 +378,24 @@ async def rules(ctx, rule: str):
                       create_permission(153001361120690176, SlashCommandPermissionType.USER, True)
                   ])
 async def admin(ctx):
-    await ctx.send(content="Administration Controls", components=[
-        create_actionrow(
+    if maintenance == False:
+        admin_action_row = create_actionrow(
             create_button(style=ButtonStyle.red, label="Shutdown Bot", custom_id="shutdown"),
             create_button(style=ButtonStyle.blue, label="Restart Bot", custom_id="restart"),
             create_button(style=ButtonStyle.gray, label="VPS Info", custom_id="vps"),
-        )])
+            create_button(style=ButtonStyle.red, label="Enable Maintenance Mode", custom_id="maintenance_on"),
+                   )
+    elif maintenance == True:
+        admin_action_row = create_actionrow(
+            create_button(style=ButtonStyle.red, label="Shutdown Bot", custom_id="shutdown"),
+            create_button(style=ButtonStyle.blue, label="Restart Bot", custom_id="restart"),
+            create_button(style=ButtonStyle.gray, label="VPS Info", custom_id="vps"),
+            create_button(style=ButtonStyle.green, label="Disable Maintenance Mode", custom_id="maintenance_off"),
+                   )
+    await ctx.send(content="Administration Controls", components=[admin_action_row])
 @client.event
 async def on_component(ctx: ComponentContext):
-    if ctx.custom_id == "shutdown":
+    global maintenance
     if ctx.author_id != 153001361120690176:
         await ctx.send(content="You don't have permission to do this!", hidden=True)
 
@@ -401,6 +415,17 @@ async def on_component(ctx: ComponentContext):
         embed.add_field(name="CPU Usage", value=str(psutil.cpu_percent()) + "%")
         embed.add_field(name="RAM Usage", value=str(psutil.virtual_memory().percent) + "%")
         await ctx.edit_origin(embed=embed, components=None)
+
+    elif ctx.custom_id == "maintenance_on":
+        maintenance = True
+        await ctx.edit_origin(content="Maintenance Mode Enabled...", components=None)
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="to maintenance mode"))
+
+    elif ctx.custom_id == "maintenance_off":
+        maintenance = False
+        await ctx.edit_origin(content="Maintenance Mode Disabled...", components=None)
+        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="over spotDL"))
+
 
 
 

@@ -155,7 +155,8 @@ async def ffmpeg(ctx, not_found: bool = False, instructions: bool = False, no_de
                      required=True,
                      choices=[
                          create_choice(name="spotDL", value="spotDL"),
-                         create_choice(name="FFmpeg", value="FFmpeg")
+                         create_choice(name="FFmpeg", value="FFmpeg"),
+                         create_choice(name="Python", value="Python"),
                      ]
                  ),
                  create_option(
@@ -170,6 +171,8 @@ async def version(ctx, app: str, pip3: bool = False):
         msg = "**Check spotDL version**\n`pip show spotdl`"
     elif app == "FFmpeg":
         msg = "**Check FFmpeg version**\n`ffmpeg -version`"
+    elif app == "Python":
+        msg = "**Check Python version**\n`python --version`"
 
     if pip3 is True:
         msg = msg.replace("pip ", "pip3 ")

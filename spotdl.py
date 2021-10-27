@@ -5,10 +5,16 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from discord_slash.model import SlashCommandPermissionType, ButtonStyle
 from discord_slash.context import ComponentContext
 
-from credentials import discord_token, guild_ids
+from dotenv import load_dotenv
+from ast import literal_eval
 import psutil
 import os
 import sys
+
+load_dotenv()
+
+discord_token = os.getenv('DISCORD_TOKEN')
+guild_ids = literal_eval(os.getenv('GUILD_IDS'))
 
 
 client = discord.Client(intents=discord.Intents.all())

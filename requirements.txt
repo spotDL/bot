@@ -9,3 +9,4 @@ multidict==5.1.0
 psutil==5.8.0
 typing-extensions==3.10.0.2
 yarl==1.6.3
+python-dotenv==0.18.0

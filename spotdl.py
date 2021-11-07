@@ -219,7 +219,7 @@ async def dl_branch(ctx):
              description="How to change output format? Options?",
              guild_ids=guild_ids)
 async def outputformat(ctx):
-    await ctx.send("**How to change output format?**\nUse the `-of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] -of opus`")
+    await ctx.send("**How to change output format?**\nUse the `--of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --of opus`")
 
 
 @slash.slash(name="certificates",

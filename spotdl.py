@@ -464,7 +464,8 @@ async def on_message(message):
         if "dll load failed" in message.content.lower():
             await message.reply("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
         elif "unable to get audio stream" in message.content.lower():
-            await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
+            await message.reply("Please review the latest announcement for this breaking issue.")
+            # await message.reply("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
         elif "could not match any of the results on youtube" in message.content.lower():
             await message.reply("**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>")
         elif "&dl_branch=1" in message.content.lower():

@@ -52,7 +52,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             if "dll load failed" in message:
                 message_for_sending = ("On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist")
             elif "unable to get audio stream" in message:
-                message_for_sending = ("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.9`, and double click `Install Certificates.command`\n(Change 3.9 to relevant version number)")
+                message_for_sending = ("On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.10`, and double click `Install Certificates.command`\n(Change 3.10 to relevant version number)")
             elif "could not match any of the results on youtube" in message:
                 message_for_sending = ("**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>")
             elif "&dl_branch=1" in message or "&utm_source" in message:

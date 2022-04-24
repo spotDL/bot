@@ -104,6 +104,147 @@ class Commands(interactions.Extension):
             message = " ".join(split_message)
 
         await ctx.send(message)
+    
+    @interactions.extension_command(
+        name="path",
+        description="How to add things to PATH",
+        scope=guild_id,
+        options=[
+            interactions.Option(
+                type=interactions.OptionType.STRING,
+                name="shell",
+                description="What shell is the user running? Or Windows",
+                required=True,
+                focused=True,
+                choices=[
+                    interactions.Choice(name="Windows", value="Windows"),
+                    interactions.Choice(name="zshrc", value="zshrc"),
+                    interactions.Choice(name="bashrc", value="bashrc"),
+                ]
+            )
+        ]
+    )
+    async def path(self, ctx, shell: str):
+        match shell:
+            case "Windows":
+                await ctx.send("**Adding to PATH on Windows**\nIn Start Menu, Search `env` then click `Edit the system environment variables`, then click `Environment Variables` in the bottom right.\nIn System variables, scroll down to `Path` and double Click. You can now view or edit the PATH variable.")
+            case "zshrc":
+                await ctx.send("**Adding to PATH for Zsh terminal**\nAdd `export PATH=~/.local/bin:$PATH` at the bottom of `~/.zshrc`\nThen run `source ~/.zshrc`")
+            case "bashrc":
+                await ctx.send("**Adding to PATH for Bash terminal**\nAdd `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`\nThen run `source ~/.bashrc`")
+
+    @interactions.extension_command(
+        name="outputformat",
+        description="How to change output format? Options?",
+        scope=guild_id,
+    )
+    async def outputformat(self, ctx):
+        await ctx.send("**How to change output format?**\nUse the `--of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --of opus`")
+    
+    @interactions.extension_command(
+        name="download",
+        description="Where did my files download?",
+        scope=guild_id,
+    )
+    async def download(self, ctx):
+        embed = interactions.Embed(
+            title="Where are my files downloaded / How can I change download location?",
+            color=0xFFFFFF,
+            fields=[
+                interactions.EmbedField(
+                    name="By default, spotDL downloads to the working directory aka Where you ran spotDL from", 
+                    value="You can change the working directory with `cd`. On Windows, the default working directory is `C:\\Users\\YOURNAME\\`",
+                    inline=False,
+                ),
+                interactions.EmbedField(
+                    name="Changing Output Directory",
+                    value="Use the `-o` or `--output` flag to change ouput directory, e.g. `spotdl [songUrl] -o /home/music/`",
+                    inline=False,
+                ),
+                interactions.EmbedField(
+                    name="Path Templates",
+                    value="You can use the `--path-template` flag to specify a custom path template. For example, your music could be sorted into nested folders per album. (`spotdl [songUrl] --path-template '{artist}/{album}/{title} - {artist}.{ext}'`\
+                        \nYou can use the following variables in your path template: `{artist}, {artists}, {title}, {album}, {playlist}, {ext}`.v4 will provide more customisability.",
+                    inline=False,
+                ),
+            ],
+        )
+        await ctx.send(embeds=embed)
+
+    @interactions.extension_command(
+        name="testsong",
+        description="Download command for the spotDL test song - for troubleshooting purposes",
+        scope=guild_id,
+    )
+    async def testsong(self, ctx):
+        await ctx.send("**Test Song:**\n`spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`")
+
+    @interactions.extension_command(
+        name="github",
+        description="Links to different spotDL documentation",
+        scope=guild_id,
+        options=[
+            interactions.Option(
+                type=interactions.OptionType.STRING,
+                name="file",
+                description="What file do you want to link to?",
+                required=True,
+                focused=True,
+                choices=[
+                    interactions.Choice(name="README", value="readme"),
+                    interactions.Choice(name="Installation Guide", value="installationguide"),
+                    interactions.Choice(name="Contributing Guidelines", value="contributing"),
+                    interactions.Choice(name="Core Values", value="corevalues"),
+                    interactions.Choice(name="License", value="license"),
+                    interactions.Choice(name="Issues", value="issues"),
+                ]
+            )
+        ]
+    )
+    async def github(self, ctx, file: str):
+        match file:
+            case "readme":
+                await ctx.send("Detailed information in our README.md\n<https://github.com/spotDL/spotify-downloader/blob/master/README.md>")
+            case "installationguide":
+                await ctx.send("You can find our Installation Guide at <https://github.com/spotDL/spotify-downloader/blob/master/docs/INSTALLATION.md>")
+            case "contributing":
+                await ctx.send("You can find our Contributing Guidelines at <https://github.com/spotDL/spotify-downloader/blob/master/docs/CONTRIBUTING.md>")
+            case "corevalues":
+                await ctx.send("You can find our Core Values at <https://github.com/spotDL/spotify-downloader/blob/master/docs/CORE_VALUES.md>")
+            case "license":
+                await ctx.send("You can find our Project License at <https://github.com/spotDL/spotify-downloader/blob/master/LICENSE>")
+            case "issues":
+                await ctx.send("You can find our Issues Page at <https://github.com/spotDL/spotify-downloader/issues>")
+
+    @interactions.extension_command(
+        name="youtube",
+        description="YouTube Music & spotDL",
+        scope=guild_id,
+    )
+    async def youtube(self, ctx):
+        embed = interactions.Embed(
+            title="spotDL and YouTube",
+            color=0xc4302b,
+            image=interactions.EmbedImageStruct(url="https://i.imgur.com/tCaTBTt.png"),
+            fields=[
+                interactions.EmbedField(
+                    name="Quality",
+                    value="spotDL automatically gets the highest quality audio from YouTube",
+                    inline=False,
+                ),
+                interactions.EmbedField(
+                    name="YouTube Music Required",
+                    value="YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music. <https://music.youtube.com/>",
+                    inline=False,
+                ),
+                interactions.EmbedField(
+                    name="spotDL Downloads From YouTube",
+                    value="spotDL downloads from YouTube if a track is found.",
+                    inline=False,
+                ),
+            ]
+        )
+        await ctx.send(embeds=embed)
 
 def setup(client):
     Commands(client)

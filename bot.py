@@ -7,22 +7,18 @@ import interactions
 # import logging
 # logging.basicConfig(level=logging.CRITICAL)
 
-# Set Bot presence
-interactions.ClientPresence(
-    activities=[
-        interactions.PresenceActivity(
-            name="over spotDL",
-            type=interactions.PresenceActivityType.WATCHING,
-        ),
-    ],
-    status=interactions.StatusType.ONLINE,
-)
-
 
 client = interactions.Client(
     token=discord_token,
     intents=(
-        interactions.Intents.ALL),
+        interactions.Intents.ALL
+        ),
+    presence=interactions.ClientPresence(
+        activities=[
+            interactions.PresenceActivity(name="over spotDL", type=interactions.PresenceActivityType.WATCHING),
+        ],
+        status=interactions.StatusType.ONLINE,
+    ),
 )
 
 # Load all extensions

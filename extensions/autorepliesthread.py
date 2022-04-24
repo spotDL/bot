@@ -1,5 +1,9 @@
 import interactions
-from credentials import help_channel
+from credentials import help_channel, team_role_id
+
+class NoOwnerError(Exception):
+   """A custom exception class for when there is no owner."""
+   pass
 
 class AutoRepliesThread(interactions.Extension):
     def __init__(self, client):
@@ -22,10 +26,19 @@ You should include the following information:
 - The actual command you ran, including any Spotify links
 - Screenshots or pasted error messages if relevant
 """
+                # Create Button component for archiving thread
+                archive_button = interactions.Button(
+                    style=interactions.ButtonStyle.SUCCESS,
+                    label="Archive Thread as Resolved",
+                    custom_id="archive"
+                )
 
                 # Create the thread and send the start message (as above)
                 thread = await msg.create_thread(name=f"{msg.author.username}'s Help Thread")
-                await thread.send(thread_start_msg)
+                thread_message = await thread.send(thread_start_msg, components=archive_button)
+
+
+
 
             """AUTOREPLIES SECTION"""
 
@@ -55,15 +68,67 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                 message_for_sending = ("This error has been patched. Update spotDL - `pip install -U --force spotdl`")
             elif "requests>=2.25.0" in message:
                 message_for_sending = ("Outdated packages. `pip install -U --force requests urllib3 chardet`\nChange `pip` to `pip3` if running *UNIX")
-
+            else:
+                message_for_sending = None
 
             """SENDING AUTOREPLY"""
-            if int(msg.channel_id) != int(help_channel):
-                # Reply to msgs in every channel EXCEPT help channel (due to autothread)
-                await msg.reply(message_for_sending)
+            if message_for_sending != None:
+                if int(msg.channel_id) != int(help_channel):
+                    # Reply to msgs in every channel EXCEPT help channel (due to autothread)
+                    await msg.reply(message_for_sending)
+                else:
+                    # If message in help channel, send the prompt in the created thread.
+                    await thread.send(f"_ _\n\n**Automatic Prompt for {msg.author.username}:**\n{message_for_sending}")        
+
+    @interactions.extension_component("archive")
+    async def archive(self, ctx):
+        # await ctx.defer()
+
+        # Get Channel Object
+        thread_object = interactions.Channel(**await self.client._http.get_channel(ctx.channel_id), _client=self.client._http)
+
+        try:
+            # Get first messages_in_channel list variable
+            messages_in_channel = await self.client._http.get_channel_messages(ctx.channel_id, limit=100)
+
+            # Continue getting messages in channel until [-1]/last object has 'referenced_message' key.
+            while "referenced_message" not in messages_in_channel[-1]:
+                messages_in_channel.extend(await self.client._http.get_channel_messages(ctx.channel_id, before=messages_in_channel[-1].get("id"), limit=100))
+
+                # If the message is type 21, it is a deleted message but of type "added to thread". This prevents infinite loops if the owner has deleted their msg.
+                if messages_in_channel[-1].get("type") == 21:
+                    raise NoOwnerError
+
+
+            thread_author = messages_in_channel[-1].get("referenced_message").get("author").get("id")
+
+            invoker = interactions.Member(**await self.client._http.get_member(int((await ctx.get_guild()).id), int(ctx.author.id)), _client=self.client._http)
+            # If the invoker has no roles, set to an empty list so can be iterated through
+            if invoker.roles == None:
+                invoker.roles = []
+
+            # Check if invoker is author/team member. If so, send message, disable button then archive thread.
+            if int(thread_author) == int(ctx.author.id) or team_role_id in invoker.roles:
+                await ctx.send(f"Thread archived by {ctx.author.mention}.\nAnyone can send a message to unarchive it.")
+                await ctx.edit(components = interactions.Button(
+                    style=interactions.ButtonStyle.SUCCESS,
+                    label="Archive Thread as Resolved",
+                    custom_id="archive",
+                    disabled=True))
+                await thread_object.archive()
             else:
-                # If message in help channel, send the prompt in the created thread.
-                await thread.send(f"_ _\n\n**Automatic Prompt for {msg.author.username}:**\n{message_for_sending}")        
+                # If they aren't author or team member, give silent error message.
+                await ctx.send("You need to be the thread author to archive this thread.", ephemeral=True)
+
+        except NoOwnerError:
+            # If we can't detect owner, send a warning messages and disable the button.
+            await ctx.send(":warning: Error: No known owner found. Please contact the moderation team if you need the thread removed, else wait for it to auto-archive.")
+            await ctx.edit(components = interactions.Button(
+                style=interactions.ButtonStyle.SUCCESS,
+                label="Archive Thread as Resolved",
+                custom_id="archive",
+                disabled=True))
+
 
 
 def setup(client):

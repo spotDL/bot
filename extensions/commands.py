@@ -1,11 +1,14 @@
 import interactions
-
+import os, sys
+import psutil
 from credentials import guild_id
+
 
 
 class Commands(interactions.Extension):
     def __init__(self, client):
         self.client: interactions.Client = client
+
 
     @interactions.extension_command(
         name="ping",
@@ -15,12 +18,6 @@ class Commands(interactions.Extension):
     async def ping(self, ctx):
         await ctx.send(f"Pong! ({self.client.latency:.0f}ms)")
 
-    # NOTE Admin command not yet enabled since interactions.py does not yet support commands for only some users, since discord has not yet released perms v2.
-    # @interactions.extension_command(
-    #     name="admin",
-    #     description="Administration Commands",
-    #     scope=guild_id,
-    # )
 
     @interactions.extension_command(
         name="ffmpeg",
@@ -64,6 +61,7 @@ class Commands(interactions.Extension):
 
                 await ctx.send(embeds=embed)
 
+
     @interactions.extension_command(
         name="update",
         description="Various update instructions for spotDL",
@@ -104,7 +102,8 @@ class Commands(interactions.Extension):
             message = " ".join(split_message)
 
         await ctx.send(message)
-    
+
+
     @interactions.extension_command(
         name="path",
         description="How to add things to PATH",
@@ -133,6 +132,7 @@ class Commands(interactions.Extension):
             case "bashrc":
                 await ctx.send("**Adding to PATH for Bash terminal**\nAdd `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`\nThen run `source ~/.bashrc`")
 
+
     @interactions.extension_command(
         name="outputformat",
         description="How to change output format? Options?",
@@ -140,7 +140,8 @@ class Commands(interactions.Extension):
     )
     async def outputformat(self, ctx):
         await ctx.send("**How to change output format?**\nUse the `--of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --of opus`")
-    
+
+
     @interactions.extension_command(
         name="download",
         description="Where did my files download?",
@@ -171,6 +172,7 @@ class Commands(interactions.Extension):
         )
         await ctx.send(embeds=embed)
 
+
     @interactions.extension_command(
         name="testsong",
         description="Download command for the spotDL test song - for troubleshooting purposes",
@@ -178,6 +180,7 @@ class Commands(interactions.Extension):
     )
     async def testsong(self, ctx):
         await ctx.send("**Test Song:**\n`spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`")
+
 
     @interactions.extension_command(
         name="github",
@@ -216,6 +219,7 @@ class Commands(interactions.Extension):
             case "issues":
                 await ctx.send("You can find our Issues Page at <https://github.com/spotDL/spotify-downloader/issues>")
 
+
     @interactions.extension_command(
         name="youtube",
         description="YouTube Music & spotDL",
@@ -245,6 +249,115 @@ class Commands(interactions.Extension):
             ]
         )
         await ctx.send(embeds=embed)
+
+
+    @interactions.extension_command(
+        name="pickyoutube",
+        description="How do I download a specific YouTube video with Spotify Metadata?",
+        scope=guild_id,
+    )
+    async def pickyoutube(self, ctx):
+        await ctx.send("""You can specify specific YouTube videos to download with Spotify metadata, or vice versa.\nTo do this, use the notation **`spotdl "YouTubeURL|SpotifyURL"`**\nNote that the quote marks (") are essential.""")
+
+
+    @interactions.extension_command(
+        name="zsh",
+        description="Special instructions for users using Zsh (Z Shell) terminal",
+        scope=guild_id,
+    )
+    async def zsh(self, ctx):
+        await ctx.send('If you use Zsh terminal, **put the URL in quotes**, e.g.\n`spotdl "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"`')
+
+
+    @interactions.extension_command(
+        name="podcast",
+        description="spotDL cannot download podcasts/episodes from Spotify",
+        scope=guild_id,
+    )
+    async def podcast(self, ctx):
+        await ctx.send("spotDL does not support downloading podcasts/episodes from Spotify")
+
+
+    @interactions.extension_command(
+        name="rules",
+        description="Prompts for users to follow our rules",
+        scope=guild_id,
+        options=[
+            interactions.Option(
+                type=interactions.OptionType.STRING,
+                name="rule",
+                description="Which prompt?",
+                required=True,
+                focused=True,
+                choices=[
+                    interactions.Choice(name="Disabling Reply Pings", value="reply"),
+                    interactions.Choice(name="Not Mentioning", value="mention"),
+                    interactions.Choice(name="Don't spam issues across channels", value="channel"),
+                ]
+            )
+        ]
+    )
+    async def rules(self, ctx, rule: str):
+        match rule:
+            case "reply":
+                await ctx.send("**Please disable reply pings**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.\nhttps://i.imgur.com/yIxI1RW.png")
+            case "mention":
+                await ctx.send("**Please don't ping devs**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.")
+            case "channel":
+                await ctx.send("**Please don't spam your issue across channels**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.")
+
+
+    @interactions.extension_command(
+        name="admin",
+        description="Administration Commands",
+        scope=guild_id,
+    )
+    async def admin(self, ctx):
+        button_row = interactions.ActionRow(
+            components=[
+                interactions.Button(
+                    style=interactions.ButtonStyle.DANGER,
+                    label="Shutdown Bot",
+                    custom_id="shutdown",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.PRIMARY,
+                    label="Restart Bot",
+                    custom_id="restart",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.SECONDARY,
+                    label="VPS Info",
+                    custom_id="vps",
+                ),
+            ]
+        )
+        if int(ctx.author.id) == 153001361120690176:
+            await ctx.send("Administration Controls", components=button_row)
+        else:
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
+
+    @interactions.extension_component("shutdown")
+    async def shutdown(self, ctx):
+        if int(ctx.author.id) == 153001361120690176:
+            await ctx.edit("Shutting down...", components=None)
+            sys.exit()
+        else:
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
+
+    @interactions.extension_component("restart")
+    async def restart(self, ctx):
+        if int(ctx.author.id) == 153001361120690176:
+            await ctx.edit("Restarting...", components=None)
+            print(sys.executable, sys.argv)
+            os.execv(sys.executable, sys.argv)
+        else:
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
+    
+    @interactions.extension_component("vps")
+    async def vps(self, ctx):
+        if int(ctx.author.id) == 153001361120690176:
+            await ctx.send()
 
 def setup(client):
     Commands(client)

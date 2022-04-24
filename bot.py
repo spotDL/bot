@@ -4,14 +4,14 @@ import os
 import sys
 import interactions
 
-# import logging
-# logging.basicConfig(level=logging.CRITICAL)
+import logging
+logging.basicConfig(level=logging.WARNING)
 
 
 client = interactions.Client(
     token=discord_token,
     intents=(
-        interactions.Intents.ALL
+        interactions.Intents.GUILD_MESSAGE_CONTENT
         ),
     presence=interactions.ClientPresence(
         activities=[

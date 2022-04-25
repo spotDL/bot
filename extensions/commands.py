@@ -330,6 +330,7 @@ class Commands(interactions.Extension):
     async def shutdown(self, ctx):
         if int(ctx.author.id) == owner_id:
             os_name = (platform.system())
+            print("Shutting down as per request from", ctx.author)
             match os_name:
                 case "Windows":
                     await ctx.edit("Encountered an unknown error...", components=None)
@@ -344,6 +345,7 @@ class Commands(interactions.Extension):
     @interactions.extension_component("restart")
     async def restart(self, ctx):
         if int(ctx.author.id) == owner_id:
+            print("Restarting as per request from", ctx.author)
             await ctx.edit("Restarting...", components=None)
             os.execv(sys.executable, ['python'] + sys.argv)
         else:

@@ -1,6 +1,8 @@
 # Credentials
 credentials.py
 
+# Logs
+logs/
 
 # Python
 __pycache__

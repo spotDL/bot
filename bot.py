@@ -4,7 +4,7 @@ import interactions
 import logging
 import datetime
 
-logfile_name = datetime.now().strftime("%Y-%m-%d %H-%M-%S")#Setting the filename from current date and time
+logfile_name = datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")#Setting the filename from current date and time
 
 logging.basicConfig(
     level=logging.WARNING,

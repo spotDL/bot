@@ -1,10 +1,12 @@
-import interactions
-import os
-import sys
-import signal
-import platform
-import psutil
 import datetime
+import logging
+import os
+import platform
+import signal
+import sys
+
+import interactions
+import psutil
 from credentials import guild_id, owner_id
 
 
@@ -330,7 +332,8 @@ class Commands(interactions.Extension):
     async def shutdown(self, ctx):
         if int(ctx.author.id) == owner_id:
             os_name = (platform.system())
-            print("Shutting down as per request from", ctx.author)
+            print(f"Shutting down as per request from {ctx.author}")
+            logging.CRITICAL(f"Shutting down as per request from {ctx.author}")
             match os_name:
                 case "Windows":
                     await ctx.edit("Encountered an unknown error...", components=None)
@@ -345,7 +348,8 @@ class Commands(interactions.Extension):
     @interactions.extension_component("restart")
     async def restart(self, ctx):
         if int(ctx.author.id) == owner_id:
-            print("Restarting as per request from", ctx.author)
+            print(f"Restarting as per request from {ctx.author}")
+            logging.CRITICAL(f"Restarting as per request from {ctx.author}")
             await ctx.edit("Restarting...", components=None)
             os.execv(sys.executable, ['python'] + sys.argv)
         else:

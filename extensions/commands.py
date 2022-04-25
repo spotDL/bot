@@ -18,7 +18,7 @@ class Commands(interactions.Extension):
         scope=guild_id,
     )
     async def ping(self, ctx):
-        await ctx.send(f"Pong! ({self.client.latency:.0f}ms)")
+        await ctx.send(f"Pong! ({self.client.latency:.0f}ms)", ephemeral=True)
 
     @interactions.extension_command(
         name="ffmpeg",

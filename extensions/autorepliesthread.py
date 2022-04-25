@@ -1,9 +1,11 @@
 import interactions
 from credentials import help_channel, team_role_id
 
+
 class NoOwnerError(Exception):
-   """A custom exception class for when there is no owner."""
-   pass
+    """A custom exception class for when there is no owner."""
+    pass
+
 
 class AutoRepliesThread(interactions.Extension):
     def __init__(self, client):
@@ -20,7 +22,7 @@ class AutoRepliesThread(interactions.Extension):
                 thread_start_msg = f"""\
 {msg.author.mention} Please continue adding more information into this thread.
 You should include the following information:
-** 
+**
 - spotDL Version (e.g. 3.9.5)
 - Operating System (e.g. Windows)**
 - The actual command you ran, including any Spotify links
@@ -35,13 +37,9 @@ You should include the following information:
 
                 # Create the thread and send the start message (as above)
                 thread = await msg.create_thread(name=f"{msg.author.username}'s Help Thread")
-                thread_message = await thread.send(thread_start_msg, components=archive_button)
-
-
-
+                await thread.send(thread_start_msg, components=archive_button)
 
             """AUTOREPLIES SECTION"""
-
             STAFF_PING = """I have detected that you pinged the Moderation team!
 Please note that this is ONLY for moderation purposes, and should not be used for spotDL assistance.
 The moderation team may not be able to assist you. Please refer to <#796939712828801074>, <#797661959037780019> and if you need to, <#796571887635267614>
@@ -72,13 +70,13 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                 message_for_sending = None
 
             """SENDING AUTOREPLY"""
-            if message_for_sending != None:
+            if message_for_sending is not None:
                 if int(msg.channel_id) != int(help_channel):
                     # Reply to msgs in every channel EXCEPT help channel (due to autothread)
                     await msg.reply(message_for_sending)
                 else:
                     # If message in help channel, send the prompt in the created thread.
-                    await thread.send(f"_ _\n\n**Automatic Prompt for {msg.author.username}:**\n{message_for_sending}")        
+                    await thread.send(f"_ _\n\n**Automatic Prompt for {msg.author.username}:**\n{message_for_sending}")
 
     @interactions.extension_component("archive")
     async def archive(self, ctx):
@@ -99,18 +97,17 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                 if messages_in_channel[-1].get("type") == 21:
                     raise NoOwnerError
 
-
             thread_author = messages_in_channel[-1].get("referenced_message").get("author").get("id")
 
             invoker = interactions.Member(**await self.client._http.get_member(int((await ctx.get_guild()).id), int(ctx.author.id)), _client=self.client._http)
             # If the invoker has no roles, set to an empty list so can be iterated through
-            if invoker.roles == None:
+            if invoker.roles is None:
                 invoker.roles = []
 
             # Check if invoker is author/team member. If so, send message, disable button then archive thread.
             if int(thread_author) == int(ctx.author.id) or team_role_id in invoker.roles:
                 await ctx.send(f"Thread archived by {ctx.author.mention}.\nAnyone can send a message to unarchive it.")
-                await ctx.edit(components = interactions.Button(
+                await ctx.edit(components=interactions.Button(
                     style=interactions.ButtonStyle.SUCCESS,
                     label="Archive Thread as Resolved",
                     custom_id="archive",
@@ -123,12 +120,11 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         except NoOwnerError:
             # If we can't detect owner, send a warning messages and disable the button.
             await ctx.send(":warning: Error: No known owner found. Please contact the moderation team if you need the thread removed, else wait for it to auto-archive.")
-            await ctx.edit(components = interactions.Button(
+            await ctx.edit(components=interactions.Button(
                 style=interactions.ButtonStyle.SUCCESS,
                 label="Archive Thread as Resolved",
                 custom_id="archive",
                 disabled=True))
-
 
 
 def setup(client):

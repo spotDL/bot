@@ -1,14 +1,14 @@
 import interactions
-import os, sys
+import os
+import sys
 import psutil
-from credentials import guild_id
-
+import datetime
+from credentials import guild_id, owner_id
 
 
 class Commands(interactions.Extension):
     def __init__(self, client):
         self.client: interactions.Client = client
-
 
     @interactions.extension_command(
         name="ping",
@@ -17,7 +17,6 @@ class Commands(interactions.Extension):
     )
     async def ping(self, ctx):
         await ctx.send(f"Pong! ({self.client.latency:.0f}ms)")
-
 
     @interactions.extension_command(
         name="ffmpeg",
@@ -61,7 +60,6 @@ class Commands(interactions.Extension):
 
                 await ctx.send(embeds=embed)
 
-
     @interactions.extension_command(
         name="update",
         description="Various update instructions for spotDL",
@@ -103,7 +101,6 @@ class Commands(interactions.Extension):
 
         await ctx.send(message)
 
-
     @interactions.extension_command(
         name="path",
         description="How to add things to PATH",
@@ -132,7 +129,6 @@ class Commands(interactions.Extension):
             case "bashrc":
                 await ctx.send("**Adding to PATH for Bash terminal**\nAdd `export PATH=~/.local/bin:$PATH` at the bottom of `~/.bashrc`\nThen run `source ~/.bashrc`")
 
-
     @interactions.extension_command(
         name="outputformat",
         description="How to change output format? Options?",
@@ -140,7 +136,6 @@ class Commands(interactions.Extension):
     )
     async def outputformat(self, ctx):
         await ctx.send("**How to change output format?**\nUse the `--of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --of opus`")
-
 
     @interactions.extension_command(
         name="download",
@@ -153,7 +148,7 @@ class Commands(interactions.Extension):
             color=0xFFFFFF,
             fields=[
                 interactions.EmbedField(
-                    name="By default, spotDL downloads to the working directory aka Where you ran spotDL from", 
+                    name="By default, spotDL downloads to the working directory aka Where you ran spotDL from",
                     value="You can change the working directory with `cd`. On Windows, the default working directory is `C:\\Users\\YOURNAME\\`",
                     inline=False,
                 ),
@@ -172,7 +167,6 @@ class Commands(interactions.Extension):
         )
         await ctx.send(embeds=embed)
 
-
     @interactions.extension_command(
         name="testsong",
         description="Download command for the spotDL test song - for troubleshooting purposes",
@@ -180,7 +174,6 @@ class Commands(interactions.Extension):
     )
     async def testsong(self, ctx):
         await ctx.send("**Test Song:**\n`spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`")
-
 
     @interactions.extension_command(
         name="github",
@@ -219,7 +212,6 @@ class Commands(interactions.Extension):
             case "issues":
                 await ctx.send("You can find our Issues Page at <https://github.com/spotDL/spotify-downloader/issues>")
 
-
     @interactions.extension_command(
         name="youtube",
         description="YouTube Music & spotDL",
@@ -250,7 +242,6 @@ class Commands(interactions.Extension):
         )
         await ctx.send(embeds=embed)
 
-
     @interactions.extension_command(
         name="pickyoutube",
         description="How do I download a specific YouTube video with Spotify Metadata?",
@@ -258,7 +249,6 @@ class Commands(interactions.Extension):
     )
     async def pickyoutube(self, ctx):
         await ctx.send("""You can specify specific YouTube videos to download with Spotify metadata, or vice versa.\nTo do this, use the notation **`spotdl "YouTubeURL|SpotifyURL"`**\nNote that the quote marks (") are essential.""")
-
 
     @interactions.extension_command(
         name="zsh",
@@ -268,7 +258,6 @@ class Commands(interactions.Extension):
     async def zsh(self, ctx):
         await ctx.send('If you use Zsh terminal, **put the URL in quotes**, e.g.\n`spotdl "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"`')
 
-
     @interactions.extension_command(
         name="podcast",
         description="spotDL cannot download podcasts/episodes from Spotify",
@@ -276,7 +265,6 @@ class Commands(interactions.Extension):
     )
     async def podcast(self, ctx):
         await ctx.send("spotDL does not support downloading podcasts/episodes from Spotify")
-
 
     @interactions.extension_command(
         name="rules",
@@ -306,7 +294,6 @@ class Commands(interactions.Extension):
             case "channel":
                 await ctx.send("**Please don't spam your issue across channels**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.")
 
-
     @interactions.extension_command(
         name="admin",
         description="Administration Commands",
@@ -332,28 +319,27 @@ class Commands(interactions.Extension):
                 ),
             ]
         )
-        if int(ctx.author.id) == 153001361120690176:
+        if int(ctx.author.id) == owner_id:
             await ctx.send("Administration Controls", components=button_row)
         else:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
 
     @interactions.extension_component("shutdown")
     async def shutdown(self, ctx):
-        if int(ctx.author.id) == 153001361120690176:
+        if int(ctx.author.id) == owner_id:
             await ctx.edit("Shutting down...", components=None)
-            sys.exit()
+            await sys.exit()
         else:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
 
     @interactions.extension_component("restart")
     async def restart(self, ctx):
-        if int(ctx.author.id) == 153001361120690176:
+        if int(ctx.author.id) == owner_id:
             await ctx.edit("Restarting...", components=None)
-            print(sys.executable, sys.argv)
-            os.execv(sys.executable, sys.argv)
+            os.execv(sys.executable, ['python'] + sys.argv)
         else:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
-    
+
     @interactions.extension_component("vps")
     async def vps(self, ctx):
         if int(ctx.author.id) == 153001361120690176:

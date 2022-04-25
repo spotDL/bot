@@ -1,7 +1,5 @@
-from credentials import discord_token, guild_id
-import psutil
+from credentials import discord_token
 import os
-import sys
 import interactions
 
 import logging
@@ -12,14 +10,13 @@ client = interactions.Client(
     token=discord_token,
     intents=(
         interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT
-        ),
+    ),
     presence=interactions.ClientPresence(
         activities=[
             interactions.PresenceActivity(name="over spotDL", type=interactions.PresenceActivityType.WATCHING),
         ],
         status=interactions.StatusType.ONLINE,
     ),
-    disable_sync=True,
 )
 
 # Load all extensions
@@ -29,7 +26,6 @@ extension_list = [filename.replace(".py", "") for filename in os.listdir("extens
 
 @client.event
 async def on_ready():
-    # await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="over spotDL"))
     print("Ready!")
 
 client.start()

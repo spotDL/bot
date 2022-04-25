@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.WARNING)
 client = interactions.Client(
     token=discord_token,
     intents=(
-        interactions.Intents.GUILD_MESSAGE_CONTENT
+        interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT
         ),
     presence=interactions.ClientPresence(
         activities=[
@@ -19,6 +19,7 @@ client = interactions.Client(
         ],
         status=interactions.StatusType.ONLINE,
     ),
+    disable_sync=True,
 )
 
 # Load all extensions

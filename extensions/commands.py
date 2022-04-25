@@ -1,6 +1,8 @@
 import interactions
 import os
 import sys
+import signal
+import platform
 import psutil
 import datetime
 from credentials import guild_id, owner_id
@@ -327,8 +329,15 @@ class Commands(interactions.Extension):
     @interactions.extension_component("shutdown")
     async def shutdown(self, ctx):
         if int(ctx.author.id) == owner_id:
-            await ctx.edit("Shutting down...", components=None)
-            await sys.exit()
+            os_name = (platform.system())
+            match os_name:
+                case "Windows":
+                    await ctx.edit("Encountered an unknown error...", components=None)
+                case _:
+                    # If not Windows, assume *UNIX based system and use SIGINT.
+                    await ctx.edit("Shutting down...", components=None)
+                    os.kill(os.getpid(), signal.SIGINT)
+
         else:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
 

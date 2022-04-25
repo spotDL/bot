@@ -342,8 +342,28 @@ class Commands(interactions.Extension):
 
     @interactions.extension_component("vps")
     async def vps(self, ctx):
-        if int(ctx.author.id) == 153001361120690176:
-            await ctx.send()
+        if int(ctx.author.id) == owner_id:
+            embed = interactions.Embed(
+                title="VPS Info",
+                color=0x7289DA,
+                fields=[
+                    interactions.EmbedField(
+                        name="CPU Usage", value=str(psutil.cpu_percent()) + "%", inline=False
+                        ),
+                    interactions.EmbedField(
+                        name="RAM Usage", value=str(psutil.virtual_memory().percent) + "%", inline=False
+                        ),
+                    interactions.EmbedField(
+                        name="Disk Usage", value=str(psutil.disk_usage("/").percent) + "%", inline=False
+                        ),
+                    interactions.EmbedField(
+                        name="System Boot Time", value=str(datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"))
+                        ),
+                    ],
+            )
+
+            await ctx.send(embeds=embed)
+
 
 def setup(client):
     Commands(client)

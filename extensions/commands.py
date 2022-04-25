@@ -362,7 +362,7 @@ class Commands(interactions.Extension):
                     ],
             )
 
-            await ctx.send(embeds=embed)
+            await ctx.edit(embeds=embed, components=None)
 
 
 def setup(client):

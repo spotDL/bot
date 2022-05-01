@@ -4,6 +4,7 @@ import os
 import platform
 import signal
 import sys
+import subprocess
 
 import interactions
 import psutil
@@ -312,9 +313,14 @@ class Commands(interactions.Extension):
                     custom_id="shutdown",
                 ),
                 interactions.Button(
-                    style=interactions.ButtonStyle.PRIMARY,
+                    style=interactions.ButtonStyle.SUCCESS,
                     label="Restart Bot",
                     custom_id="restart",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.PRIMARY,
+                    label="Update Bot",
+                    custom_id="update",
                 ),
                 interactions.Button(
                     style=interactions.ButtonStyle.SECONDARY,
@@ -352,6 +358,20 @@ class Commands(interactions.Extension):
             logging.CRITICAL(f"Restarting as per request from {ctx.author}")
             await ctx.edit("Restarting...", components=None)
             os.execv(sys.executable, ['python'] + sys.argv)
+        else:
+            await ctx.send("You do not have permission to use this command.", ephemeral=True)
+
+    @interactions.extension_component("update")
+    async def update(self, ctx):
+        if int(ctx.author.id) == owner_id:
+            print(f"Updating as per request from {ctx.author}")
+            logging.CRITICAL(f"Updating as per request from {ctx.author}")
+            await ctx.edit("Updating...", components=None)
+            process = subprocess.run(["git", "pull"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, _ = process.communicate()
+            print(output)
+            await ctx.send(f"Updated!\n```{output}```")
+
         else:
             await ctx.send("You do not have permission to use this command.", ephemeral=True)
 

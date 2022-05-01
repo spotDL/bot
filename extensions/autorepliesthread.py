@@ -60,8 +60,8 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                 await msg.create_reaction("ping:896186295771095040")  # Pinged emoji
                 message_for_sending = (STAFF_PING)
             elif "'spotdl' is not recognized" in message:
-                msg = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
-                message_for_sending = (f"**Python/(site packages) is not added to PATH correctly.**\n{msg} ")
+                message_part = "You need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png"
+                message_for_sending = (f"**Python/(site packages) is not added to PATH correctly.**\n{message_part} ")
             elif "error: http error 410: gone" in message:
                 message_for_sending = ("This error has been patched. Update spotDL - `pip install -U --force spotdl`")
             elif "requests>=2.25.0" in message:

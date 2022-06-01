@@ -65,47 +65,49 @@ class Commands(interactions.Extension):
 
                 await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+   @interactions.extension_command(
         name="update",
         description="Various update instructions for spotDL",
         scope=guild_id,
-        options=[
-            interactions.Option(
-                type=interactions.OptionType.STRING,
-                name="location",
-                description="Where should the update come from?",
-                required=True,
-                focused=True,
-                choices=[
-                    interactions.Choice(name="pip/PyPi", value="pip"),
-                    interactions.Choice(name="Master Branch on GitHub", value="master"),
-                    interactions.Choice(name="Dev Branch on GitHub", value="dev"),
-                    interactions.Choice(name="v4 Master Branch on GitHub", value="v4"),
-                ]
-            ),
-            interactions.Option(
-                type=interactions.OptionType.BOOLEAN,
-                name="force",
-                description="Use --force-reinstall flag?",
-                required=False,
+        options=[ interactions.Option(
+            type=interactions.OptionType.STRING,
+            name="location",
+            description="Where should the update come from?",
+            required=True,
+        choices=[
+            interactions.Choice(name="pip/Pypi", value="pip"),
+            interactions.Choice(name="Master Branch on GitHub", value="master"),
+            interactions.Choice(name="Dev Branch on GitHub", value="dev"),
+            interactions.Choice(name="v4 Master Branch on GitHub", value="v4"),
+            ]
+        ),
+        interactions.Option(
+            type=interactions.OptionType.BOOLEAN,
+            name="force",
+            description="Use --force-resintall flag?",
+            require="false"
             )
         ]
     )
     async def update(self, ctx, location: str, force: bool = False):
+        base_message="To update spotDL, run `pip install -U spotdl "
+        if force:
+            split_message = base_message.split()
+            split_message.insert(split_message.index("-U"), "--force")
+            base_message = " ".join(split_message)
+            
+
         match location:
             case "pip":
-                message = ("To update spotDL, run `pip install -U spotdl`")
+                response_message = (base_message + "`")
+                await ctx.send(response_message)
             case "master" | "dev":
-                message = (f"To update spotDL, run `pip install -U https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`")
+                response_message = (base_message + " https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`")
+                await ctx.send(response_message)
             case "v4":
-                message = ("To update spotDL, run `pip install -U https://codeload.github.com/spotDL/spotdl-v4/zip/master`")
-        if force:
-            split_message = message.split()
-            split_message.insert(split_message.index("-U"), "--force")
-            message = " ".join(split_message)
-
-        await ctx.send(message)
-
+                response_message = (base_message + "https://codeload.github.com/spotDL/spotdl-v4/zip/master`")
+                await ctx.send(response_message)
+                
     @interactions.extension_command(
         name="path",
         description="How to add things to PATH",

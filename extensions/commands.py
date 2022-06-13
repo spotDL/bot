@@ -91,7 +91,7 @@ class Commands(interactions.Extension):
             )
         ]
     )
-    async def update_c(self, ctx, location: str, force: bool = False):
+    async def update_spotdl(self, ctx, location: str, force: bool = False):
         match location:
             case "pip":
                 message = ("To update spotDL, run `pip install -U spotdl`")

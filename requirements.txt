@@ -4,7 +4,7 @@ async-timeout==4.0.2
 attrs==21.4.0
 charset-normalizer==2.0.12
 colorama==0.4.4
-discord-py-interactions @ git+https://github.com/interactions-py/library.git@00ebd1b896f7cc17415cebd04cfc1877a6badbc8
+discord-py-interactions
 frozenlist==1.3.0
 idna==3.3
 mccabe==0.6.1

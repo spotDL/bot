@@ -80,7 +80,6 @@ class Commands(interactions.Extension):
                     interactions.Choice(name="pip/PyPi", value="pip"),
                     interactions.Choice(name="Master Branch on GitHub", value="master"),
                     interactions.Choice(name="Dev Branch on GitHub", value="dev"),
-                    interactions.Choice(name="v4 Master Branch on GitHub", value="v4"),
                 ]
             ),
             interactions.Option(
@@ -97,8 +96,7 @@ class Commands(interactions.Extension):
                 message = ("To update spotDL, run `pip install -U spotdl`")
             case "master" | "dev":
                 message = (f"To update spotDL, run `pip install -U https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`")
-            case "v4":
-                message = ("To update spotDL, run `pip install -U https://codeload.github.com/spotDL/spotdl-v4/zip/master`")
+
         if force:
             split_message = message.split()
             split_message.insert(split_message.index("-U"), "--force")

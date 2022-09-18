@@ -22,7 +22,12 @@ intents = disnake.Intents.default()
 intents.guild_messages = True
 
 # Set test guild so the bot instantly registers the commands for the spotdl server.
-client = commands.InteractionBot(token=discord_token, intents=intents, test_guilds=[771628785447337985], sync_commands=True)
+client = commands.InteractionBot(
+    token=discord_token,
+    intents=intents,
+    test_guilds=[771628785447337985],
+    sync_commands=True,
+)
 
 
 @client.event

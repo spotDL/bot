@@ -23,13 +23,12 @@ logging.basicConfig(
 
 
 intents = disnake.Intents.default()
-intents.guild_messages = True
+intents.message_content = True
 
 # Set test guild so the bot instantly registers the commands for the spotdl server.
 client = commands.InteractionBot(
-    token=TOKEN,
     intents=intents,
-    test_guilds=[771628785447337985],
+    test_guilds=[771628785447337985, 804093708437946418],
     sync_commands=True,
 )
 
@@ -42,10 +41,9 @@ async def on_ready():
 
     print("Ready!")
 
-
 # Load all extensions
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
         client.load_extension(f"cogs.{filename[:-3]}")
 
-client.run()
+client.run(TOKEN)

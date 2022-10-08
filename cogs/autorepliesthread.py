@@ -14,8 +14,7 @@ class AutoRepliesThread(commands.Cog):
     async def on_thread_create(self, thread: disnake.Thread):
         # Check if thread chanel is on the forum channel
 
-        # if int(thread.parent_id) == int(SUPPORT_FORUM_CHANNEL_ID):
-        if True:
+        if int(thread.parent_id) == int(SUPPORT_FORUM_CHANNEL_ID):
             # Send thread reply
 
             # Build embed

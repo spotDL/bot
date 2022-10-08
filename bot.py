@@ -1,9 +1,13 @@
 import disnake
 from disnake.ext import commands
-from credentials import discord_token
 import os
 import logging
 import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TOKEN: str = os.getenv("TOKEN", "")
 
 logfile_name = datetime.datetime.now().strftime(
     "%Y-%m-%d %H-%M-%S"
@@ -23,7 +27,7 @@ intents.guild_messages = True
 
 # Set test guild so the bot instantly registers the commands for the spotdl server.
 client = commands.InteractionBot(
-    token=discord_token,
+    token=TOKEN,
     intents=intents,
     test_guilds=[771628785447337985],
     sync_commands=True,

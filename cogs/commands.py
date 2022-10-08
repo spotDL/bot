@@ -9,19 +9,15 @@ import subprocess
 import disnake
 from disnake.ext import commands, components
 import psutil
-from credentials import guild_id, owner_id
 
 
 class Commands(commands.Cog):
-    def __init__(self, client):
-        self.client: commands.InteractionBot = client
-
     @commands.slash_command(
         name="ping",
         description="Ping spotDL's Bot!",
     )
     async def ping(self, inter: disnake.MessageCommandInteraction):
-        await inter.send(f"Pong! ({self.client.latency:.0f}ms)", ephemeral=True)
+        await inter.send(f"Pong! ({round(inter.bot.latency * 1000)}ms)", ephemeral=True)
 
     @commands.slash_command(
         name="ffmpeg",
@@ -29,74 +25,68 @@ class Commands(commands.Cog):
         options=[
             disnake.Option(
                 name="install",
-                description="Instructions to install FFmpeg",
+                description="",
                 type=disnake.OptionType.sub_command,
             ),
             disnake.Option(
                 name="info",
-                description="Info about using FFmpeg with spotDL v3",
+                description="",
                 type=disnake.OptionType.sub_command,
             ),
         ],
     )
-    async def ffmpeg(self, inter: disnake.MessageCommandInteraction, sub_command: str):
-        if sub_command == "install":
-            await inter.send(
-                "Windows: [Download Binaries](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) then [follow tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)\nOSX: `brew install ffmpeg`\nUbuntu:`sudo apt install ffmpeg -y`"
-            )
+    async def ffmpeg(self, inter: disnake.MessageCommandInteraction):
+        pass
 
-        elif sub_command == "info":
-            embed = disnake.Embed(
+    @ffmpeg.sub_command(name="install", description="Instructions to install FFmpeg")
+    async def ffmpeg_install(self, inter: disnake.MessageCommandInteraction):
+        await inter.send(
+            "Windows: [Download Binaries](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) then [follow tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)\nOSX: `brew install ffmpeg`\nUbuntu:`sudo apt install ffmpeg -y`"
+        )
+
+    @ffmpeg.sub_command(
+        name="info", description="Info about using FFmpeg with spotDL v3"
+    )
+    async def ffmpeg_info(self, inter: disnake.MessageCommandInteraction):
+        embed = (
+            disnake.Embed(
                 title="FFmpeg and spotDL v3",
                 description="spotDL requires FFmpeg v4.2 or above",
                 color=0x0000FF,
             )
-
-            embed.add_field(
+            .add_field(
                 name="Specify path to FFmpeg",
                 value="If you don't want to add FFmpeg to your PATH, you can specify the path to the FFmpeg binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path/to/ffmpeg.exe [trackUrl]`",
                 inline=False,
             )
-
-            embed.add_field(
+            .add_field(
                 name="FFmpeg version couldn't be detected?",
                 value="Add the `--ignore-ffmpeg-version` flag to your spotDL command.\nThis is common if you are using a nightly FFmpeg build.",
                 inline=False,
             )
+        )
 
-            await inter.send(embed=embed)
+        await inter.send(embed=embed)
 
     @commands.slash_command(
         name="update",
         description="Various update instructions for spotDL",
-        options=[
-            disnake.Option(
-                type=disnake.OptionType.string,
-                name="location",
-                description="Where should the update come from?",
-                required=True,
-                focused=True,
-                choices=[
-                    disnake.OptionChoice(name="pip/PyPi", value="pip"),
-                    disnake.OptionChoice(
-                        name="Master Branch on GitHub", value="master"
-                    ),
-                    disnake.OptionChoice(name="Dev Branch on GitHub", value="dev"),
-                ],
-            ),
-            disnake.Option(
-                type=disnake.OptionType.boolean,
-                name="force",
-                description="Use --force-reinstall flag?",
-                required=False,
-            ),
-        ],
     )
     async def update_spotdl(
         self,
         inter: disnake.MessageCommandInteraction,
-        location: str,
-        force: bool = False,
+        location: str = commands.Param(
+            name="location",
+            description="Where should the update come from?",
+            choices=[
+                disnake.OptionChoice(name="pip/PyPi", value="pip"),
+                disnake.OptionChoice("Master Branch on Github", value="master"),
+                disnake.OptionChoice(name="Dev Branch on Github", value="dev"),
+            ],
+        ),
+        force: bool = commands.Param(
+            default=False, name="force", description="Use --force-reinstall flag?"
+        ),
     ):
         if location == "pip":
             message = "To update spotDL, run `pip install -U spotdl`"
@@ -111,25 +101,20 @@ class Commands(commands.Cog):
 
         await inter.send(message)
 
-    @commands.slash_command(
-        name="path",
-        description="How to add things to PATH",
-        options=[
-            disnake.Option(
-                type=disnake.OptionType.string,
-                name="shell",
-                description="What shell is the user running? Or Windows",
-                required=True,
-                focused=True,
-                choices=[
-                    disnake.OptionChoice(name="Windows", value="Windows"),
-                    disnake.OptionChoice(name="zshrc", value="zshrc"),
-                    disnake.OptionChoice(name="bashrc", value="bashrc"),
-                ],
-            )
-        ],
-    )
-    async def path(self, inter: disnake.MessageCommandInteraction, shell: str):
+    @commands.slash_command(name="path", description="How to add things to PATH")
+    async def path(
+        self,
+        inter: disnake.MessageCommandInteraction,
+        shell: str = commands.Param(
+            name="shell",
+            description="What shell is the user running? Or Windows?",
+            choices=[
+                disnake.OptionChoice(name="Windows", value="Windows"),
+                disnake.OptionChoice(name="zshrc", value="zshrc"),
+                disnake.OptionChoice(name="bashrc", value="bashrc"),
+            ],
+        ),
+    ):
         if shell == "Windows":
             await inter.send(
                 "**Adding to PATH on Windows**\nIn Start Menu, Search `env` then click `Edit the system environment variables`, then click `Environment Variables` in the bottom right.\nIn System variables, scroll down to `Path` and double Click. You can now view or edit the PATH variable."
@@ -146,8 +131,7 @@ class Commands(commands.Cog):
             )
 
     @commands.slash_command(
-        name="outputformat",
-        description="How to change output format? Options?",
+        name="outputformat", description="How to change output format? Options?"
     )
     async def outputformat(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
@@ -182,7 +166,7 @@ class Commands(commands.Cog):
             )
         )
 
-        await inter.send(embed == embed)
+        await inter.send(embed=embed)
 
     @commands.slash_command(
         name="testsong",
@@ -194,32 +178,28 @@ class Commands(commands.Cog):
         )
 
     @commands.slash_command(
-        name="github",
-        description="Links to different spotDL documentation",
-        options=[
-            disnake.Option(
-                type=disnake.OptionType.string,
-                name="file",
-                description="What file do you want to link to?",
-                required=True,
-                focused=True,
-                choices=[
-                    disnake.OptionChoice(name="README", value="readme"),
-                    disnake.OptionChoice(
-                        name="Installation Guide", value="installationguide"
-                    ),
-                    disnake.OptionChoice(
-                        name="Contributing Guidelines", value="contributing"
-                    ),
-                    disnake.OptionChoice(name="Core Values", value="corevalues"),
-                    disnake.OptionChoice(name="License", value="license"),
-                    disnake.OptionChoice(name="Issues", value="issues"),
-                ],
-            )
-        ],
+        name="github", description="Links to different spotDL documentation"
     )
-    async def github(self, inter: disnake.MessageCommandInteraction, file: str):
-        # Trying this to make it more readable
+    async def github(
+        self,
+        inter: disnake.MessageCommandInteraction,
+        destination: str = commands.Param(
+            name="file",
+            description="What file you want to link to?",
+            choices=[
+                disnake.OptionChoice(name="README", value="readme"),
+                disnake.OptionChoice(
+                    name="Installation Guide", value="installationguide"
+                ),
+                disnake.OptionChoice(
+                    name="Contributing Guidelines", value="contributing"
+                ),
+                disnake.OptionChoice(name="Core Values", value="corevalues"),
+                disnake.OptionChoice(name="License", value="license"),
+                disnake.OptionChoice(name="Issues", value="issues"),
+            ],
+        ),
+    ):
         answers = {
             "readme": "Detailed information in our README.md\n<https://github.com/spotDL/spotify-downloader/blob/master/README.md>",
             "installationguide": "You can find our Installation Guide at <https://github.com/spotDL/spotify-downloader/blob/master/docs/INSTALLATION.md>",
@@ -229,7 +209,7 @@ class Commands(commands.Cog):
             "issues": "You can find our Issues Page at <https://github.com/spotDL/spotify-downloader/issues>",
         }
 
-        await inter.send(answers[file])
+        await inter.send(answers.get(destination, "An error has occured."))
 
     @commands.slash_command(
         name="youtube",
@@ -291,63 +271,52 @@ class Commands(commands.Cog):
     @commands.slash_command(
         name="rules",
         description="Prompts for users to follow our rules",
-        options=[
-            disnake.Option(
-                type=disnake.OptionType.string,
-                name="rule",
-                description="Which prompt?",
-                required=True,
-                focused=True,
-                choices=[
-                    disnake.OptionChoice(name="Disabling Reply Pings", value="reply"),
-                    disnake.OptionChoice(name="Not Mentioning", value="mention"),
-                    disnake.OptionChoice(
-                        name="Don't spam issues across channels", value="channel"
-                    ),
-                ],
-            )
-        ],
     )
-    async def rules(self, inter, rule: str):
+    async def rules(
+        self,
+        inter,
+        rule: str = commands.Param(
+            name="rule",
+            description="Which prompt?",
+            choices=[
+                disnake.OptionChoice(name="Disabling Reply Pings", value="reply"),
+                disnake.OptionChoice(name="Not Mentioning", value="mention"),
+                disnake.OptionChoice(
+                    name="Don't spam issues across channels", value="channel"
+                ),
+            ],
+        ),
+    ):
         answers = {
             "reply": "**Please disable reply pings**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.\nhttps://i.imgur.com/yIxI1RW.png",
             "mention": "**Please don't ping devs**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.",
             "channel": "**Please don't spam your issue across channels**\n\nOur devs are human as well! Please wait patiently, we will reply as soon as we can.",
         }
 
-        await inter.send(answers[rule])
+        await inter.send(answers.get(rule, "An error has occured."))
 
     @commands.slash_command(
         name="admin",
         description="Administration Commands",
     )
-    async def admin(self, inter):
-        button_row = disnake.ui.ActionRow(
-            components=[
-                disnake.ui.Button(
-                    style=disnake.ButtonStyle.DANGER,
-                    label="Shutdown Bot",
-                    custom_id="shutdown",
-                ),
-                disnake.ui.Button(
-                    style=disnake.ButtonStyle.SUCCESS,
-                    label="Restart Bot",
-                    custom_id="restart",
-                ),
-                disnake.ui.Button(
-                    style=disnake.ButtonStyle.PRIMARY,
-                    label="Update Bot",
-                    custom_id="update",
-                ),
-                disnake.ui.Button(
-                    style=disnake.ButtonStyle.SECONDARY,
-                    label="VPS Info",
-                    custom_id="vps",
-                ),
-            ]
-        )
-        if inter.author.id == self.client.owner.id:
-            await inter.send("Administration Controls", components=button_row)
+    async def admin(self, inter: disnake.MessageCommandInteraction):
+        components = [
+            await self.admin_listener.build_button(
+                style=disnake.ButtonStyle.red, label="Shutdown Bot", step="shutdown"
+            ),
+            await self.admin_listener.build_button(
+                style=disnake.ButtonStyle.green, label="Restart Bot", step="restart"
+            ),
+            await self.admin_listener.build_button(
+                style=disnake.ButtonStyle.blurple, label="Update Bot", step="update"
+            ),
+            await self.admin_listener.build_button(
+                style=disnake.ButtonStyle.gray, label="VPS Info", step="vps"
+            ),
+        ]
+
+        if inter.author.id == inter.bot.owner.id:
+            await inter.send("Administration Controls", components=components)
         else:
             await inter.send(
                 "You do not have permission to use this command.", ephemeral=True
@@ -355,39 +324,41 @@ class Commands(commands.Cog):
 
     @components.button_listener()
     async def admin_listener(
-        self, inter: disnake.MessageCommandInteraction, *, btn: str
+        self, inter: disnake.MessageCommandInteraction, *, step: str
     ):
-        if inter.author.id != self.client.owner.id:
-            await inter.send(
+
+        await inter.response.defer(with_message=True)
+        if inter.author.id != inter.bot.owner.id:
+            await inter.edit_original_message(
                 "You do not have permission to use this command.", ephemeral=True
             )
             return
 
-        if btn == "shutdown":
+        if step == "shutdown":
             os_name = platform.system()
-            print(f"Shutting down as per request from {inter.author}")
-            logging.CRITICAL(f"Shutting down as per request from {inter.author}")
+            print(f"Shutting down as per request from {inter.author.name}")
+            logging.critical(f"Shutting down as per request from {inter.author.name}")
 
             if os_name == "Windows":
-                await inter.response.edit_message(
+                await inter.edit_original_message(
                     "Encountered an unknown error...", components=None
                 )
 
             else:
-                await inter.response.edit_message("Shutting down...", components=None)
+                await inter.edit_original_message("Shutting down...", components=None)
                 os.kill(os.getpid(), signal.SIGINT)
 
-        if btn == "restart":
-            print(f"Restarting as per request from {inter.author}")
-            logging.CRITICAL(f"Restarting as per request from {ctx.author}")
-            await inter.response.edit_message("Restarting...", components=None)
+        if step == "restart":
+            print(f"Restarting as per request from {inter.author.name}")
+            logging.critical(f"Restarting as per request from {inter.author.name}")
+            await inter.edit_original_message("Restarting...", components=None)
             os.execv(sys.executable, ["python"] + sys.argv)
 
-        if btn == "update":
-            print(f"Updating as per request from {inter.author}")
-            logging.CRITICAL(f"Updating as per request from {inter.author}")
+        if step == "update":
+            print(f"Updating as per request from {inter.author.name}")
+            logging.critical(f"Updating as per request from {inter.author.name}")
 
-            await inter.response.edit_message("Updating...", components=None)
+            await inter.edit_original_message("Updating...", components=None)
             process = subprocess.run(
                 ["git", "pull"],
                 check=True,
@@ -396,9 +367,10 @@ class Commands(commands.Cog):
             )
             output, _ = process.communicate()
             print(output)
-            await inter.response.edit_message(f"Updated!\n```{output}```")
+            await inter.edit_original_message(f"Updated!\n```{output}```")
 
-        if btn == "update":
+        if step == "vps":
+            print("asked for vps info")
             embed = (
                 disnake.Embed(
                     title="VPS Info",
@@ -429,8 +401,8 @@ class Commands(commands.Cog):
                 ),
             )
 
-            await inter.response.edit_message(embeds=embed, components=None)
+            await inter.edit_original_message(embeds=embed, components=None)
 
 
 def setup(client: commands.InteractionBot):
-    client.add_cog(Commands(client))
+    client.add_cog(Commands())

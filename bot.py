@@ -41,6 +41,7 @@ async def on_ready():
 
     print("Ready!")
 
+
 # Load all extensions
 for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):

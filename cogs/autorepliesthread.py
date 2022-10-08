@@ -3,8 +3,9 @@ from disnake.ext import commands, components
 from dotenv import load_dotenv
 import os
 
-SUPPORT_FORUM_CHANNEL_ID = os.getenv('SUPPORT_FORUM_CHANNEL_ID', '0')
-TEAM_ROLE_ID = os.getenv('TEAM_ROLE_ID', '0')
+SUPPORT_FORUM_CHANNEL_ID = os.getenv("SUPPORT_FORUM_CHANNEL_ID", "0")
+TEAM_ROLE_ID = os.getenv("TEAM_ROLE_ID", "0")
+
 
 class AutoRepliesThread(commands.Cog):
     """This cog handles thread creation in the forum channel"""
@@ -19,33 +20,30 @@ class AutoRepliesThread(commands.Cog):
 
             # Build embed
 
-            embed = disnake.Embed(
-                description='Please continue adding more information into this thread.\nYou should include the following information:',
-                color = disnake.Color.brand_green()
-            ).set_author(
-                name = 'spotDL Support',
-                icon_url=thread.guild.icon.url
-            ).add_field(
-                name = 'spotDL Version',
-                value = 'Eg. `3.9.5`'
-            ).add_field(
-                name = 'Operating System',
-                value = 'Eg. ***Windows***'
-            ).add_field(
-                name = 'The Command You Ran',
-                value = 'Please include Spotify links.',
-            ).add_field(
-                name = 'Screenshots or Pasted Error Messages',
-                value = 'Only send these if they are relevant.\n\n To send pasted error messages use backticks (`)\n[Here\'s](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-) on how to use code blocks.',
+            embed = (
+                disnake.Embed(
+                    description="Please continue adding more information into this thread.\nYou should include the following information:",
+                    color=disnake.Color.brand_green(),
+                )
+                .set_author(name="spotDL Support", icon_url=thread.guild.icon.url)
+                .add_field(name="spotDL Version", value="Eg. `3.9.5`")
+                .add_field(name="Operating System", value="Eg. ***Windows***")
+                .add_field(
+                    name="The Command You Ran",
+                    value="Please include Spotify links.",
+                )
+                .add_field(
+                    name="Screenshots or Pasted Error Messages",
+                    value="Only send these if they are relevant.\n\n To send pasted error messages use backticks (`)\n[Here's](https://support.discord.com/hc/en-us/articles/210298617-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-) on how to use code blocks.",
+                )
             )
-
 
             # Button archive component
             archive_btn = await self.archive_listener.build_button(
                 style=disnake.ButtonStyle.green, label="Archive Thread as Resolved"
             )
 
-            await thread.send(embed = embed, components=archive_btn)
+            await thread.send(embed=embed, components=archive_btn)
 
     @commands.Cog.listener()
     async def on_message(self, msg: disnake.Message):
@@ -89,7 +87,6 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
 
         elif "requests>=2.25.0" in message:
             message_for_sending = "Outdated packages. `pip install -U --force requests urllib3 chardet`\nChange `pip` to `pip3` if running *UNIX"
-
 
         # * Send auto reply
         if message_for_sending is not None:

@@ -45,25 +45,17 @@ class Commands(commands.Cog):
         )
 
     @ffmpeg.sub_command(
-        name="info", description="Info about using FFmpeg with spotDL v3"
+        name="info", description="Info about using FFmpeg with spotDL v4"
     )
     async def ffmpeg_info(self, inter: disnake.MessageCommandInteraction):
-        embed = (
-            disnake.Embed(
-                title="FFmpeg and spotDL v3",
-                description="spotDL requires FFmpeg v4.2 or above",
-                color=0x0000FF,
-            )
-            .add_field(
-                name="Specify path to FFmpeg",
-                value="If you don't want to add FFmpeg to your PATH, you can specify the path to the FFmpeg binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path/to/ffmpeg.exe [trackUrl]`",
-                inline=False,
-            )
-            .add_field(
-                name="FFmpeg version couldn't be detected?",
-                value="Add the `--ignore-ffmpeg-version` flag to your spotDL command.\nThis is common if you are using a nightly FFmpeg build.",
-                inline=False,
-            )
+        embed = disnake.Embed(
+            title="FFmpeg and spotDL v4",
+            description="spotDL requires FFmpeg v4.2 or above",
+            color=0x0000FF,
+        ).add_field(
+            name="Specify path to FFmpeg",
+            value="If you don't want to add FFmpeg to your PATH, you can specify the path to the FFmpeg binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path/to/ffmpeg.exe [trackUrl]`",
+            inline=False,
         )
 
         await inter.send(embed=embed)
@@ -135,7 +127,7 @@ class Commands(commands.Cog):
     )
     async def outputformat(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
-            "**How to change output format?**\nUse the `--of` or `--output-format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --of opus`"
+            "**How to change output format?**\nUse the `--format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --format opus`"
         )
 
     @commands.slash_command(
@@ -155,17 +147,11 @@ class Commands(commands.Cog):
             )
             .add_field(
                 name="Changing Output Directory",
-                value="Use the `-o` or `--output` flag to change ouput directory, e.g. `spotdl [songUrl] -o /home/music/`",
-                inline=False,
-            )
-            .add_field(
-                name="Path Templates",
-                value="You can use the `--path-template` flag to specify a custom path template. For example, your music could be sorted into nested folders per album. (`spotdl [songUrl] --path-template '{artist}/{album}/{title} - {artist}.{ext}'`\
-                        \nYou can use the following variables in your path template: `{artist}, {artists}, {title}, {album}, {playlist}, {ext}`.v4 will provide more customisability.",
+                value="Use the `--output` flag to change ouput directory, e.g. `spotdl [songUrl] --output /home/music/`\n\nYou can use flags to specify a custom path template. For example, your music could be sorted into nested folders per album. (`spotdl [songUrl] --output '{artist}/{album}/{title} - {artist}.{ext}'`\
+                        \nYou can use the following variables in your path template: `{title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}`.",
                 inline=False,
             )
         )
-
         await inter.send(embed=embed)
 
     @commands.slash_command(
@@ -174,7 +160,7 @@ class Commands(commands.Cog):
     )
     async def testsong(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
-            "**Test Song:**\n`spotdl https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`"
+            "**Test Song:**\n`spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`"
         )
 
     @commands.slash_command(
@@ -247,7 +233,7 @@ class Commands(commands.Cog):
     )
     async def pickyoutube(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
-            """You can specify specific YouTube videos to download with Spotify metadata, or vice versa.\nTo do this, use the notation **`spotdl "YouTubeURL|SpotifyURL"`**\nNote that the quote marks (") are essential."""
+            """You can specify specific YouTube videos to download with Spotify metadata, or vice versa.\nTo do this, use the notation **`spotdl download "YouTubeURL|SpotifyURL"`**\nNote that the quote marks (") are essential."""
         )
 
     @commands.slash_command(

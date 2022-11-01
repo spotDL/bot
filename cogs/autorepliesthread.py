@@ -25,7 +25,10 @@ class AutoRepliesThread(commands.Cog):
                     description="Please continue adding more information into this thread.\nYou should include the following information:",
                     color=disnake.Color.brand_green(),
                 )
-                .set_author(name="spotDL Support", icon_url=thread.guild.icon.url if thread.guild.icon else None)
+                .set_author(
+                    name="spotDL Support",
+                    icon_url=thread.guild.icon.url if thread.guild.icon else None,
+                )
                 .add_field(name="spotDL Version", value="Eg. `3.9.5`")
                 .add_field(name="Operating System", value="Eg. ***Windows***")
                 .add_field(
@@ -41,7 +44,7 @@ class AutoRepliesThread(commands.Cog):
             # Button archive component
             archive_btn = await self.archive_listener.build_component(
                 style=disnake.ButtonStyle.green, label="Archive Thread as Resolved"
-            ) # type: ignore
+            )  # type: ignore
 
             await thread.send(embed=embed, components=archive_btn)
 
@@ -94,7 +97,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
 
             await msg.reply(message_for_sending)
 
-    @components.button_listener() # type: ignore
+    @components.button_listener()  # type: ignore
     async def archive_listener(self, inter: disnake.MessageCommandInteraction):
         await inter.response.defer()
 
@@ -106,12 +109,19 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         async for message in thread.history(oldest_first=True):
 
             # If the message author is not me
-            if isinstance(thread, Union[TextChannel, Thread, VoiceChannel]) and message.author != thread.guild.me:
+            if (
+                isinstance(thread, Union[TextChannel, Thread, VoiceChannel])
+                and message.author != thread.guild.me
+            ):
                 thread_owner = message.author
                 break
 
-        user_roles = [role.id for role in inter.author.roles] # type: ignore
-        if thread_owner and thread_owner.id == inter.author.id or TEAM_ROLE_ID in user_roles:
+        user_roles = [role.id for role in inter.author.roles]  # type: ignore
+        if (
+            thread_owner
+            and thread_owner.id == inter.author.id
+            or TEAM_ROLE_ID in user_roles
+        ):
             await inter.send(
                 f"Thread archived by {inter.author.mention}.\nAnyone can send a message to unarchive it.",
             )
@@ -124,7 +134,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                 )
             )
 
-            await thread.edit(archived=True) # type: ignore
+            await thread.edit(archived=True)  # type: ignore
         else:
             # If they aren't author or team member, give silent error message.
             await inter.send(

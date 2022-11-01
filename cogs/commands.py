@@ -287,13 +287,13 @@ class Commands(commands.Cog):
     async def admin(self, inter: disnake.MessageCommandInteraction):
         message_components = [
             await self.admin_listener.build_component(
-                style=disnake.ButtonStyle.red, label="Shutdown Bot", step="shutdown" # type: ignore
+                style=disnake.ButtonStyle.red, label="Shutdown Bot", step="shutdown"  # type: ignore
             ),
             await self.admin_listener.build_component(
-                style=disnake.ButtonStyle.green, label="Restart Bot", step="restart" # type: ignore
+                style=disnake.ButtonStyle.green, label="Restart Bot", step="restart"  # type: ignore
             ),
             await self.admin_listener.build_component(
-                style=disnake.ButtonStyle.blurple, label="Update Bot", step="update" # type: ignore
+                style=disnake.ButtonStyle.blurple, label="Update Bot", step="update"  # type: ignore
             ),
             await self.admin_listener.build_component(
                 style=disnake.ButtonStyle.gray, label="VPS Info", step="vps"  # type: ignore
@@ -307,7 +307,7 @@ class Commands(commands.Cog):
                 "You do not have permission to use this command.", ephemeral=True
             )
 
-    @components.button_listener() # type: ignore
+    @components.button_listener()  # type: ignore
     async def admin_listener(
         self, inter: disnake.MessageCommandInteraction, *, step: str
     ):

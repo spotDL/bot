@@ -13,6 +13,9 @@ logfile_name = datetime.datetime.now().strftime(
     "%Y-%m-%d %H-%M-%S"
 )  # Setting the filename from current date and time
 
+if not os.path.exists("logs"):
+    os.mkdir("logs")  # Creating a folder for logs if it doesn't exist
+
 logging.basicConfig(
     level=logging.WARNING,
     format="%(levelname)s %(asctime)s - %(message)s",
@@ -28,7 +31,6 @@ intents.message_content = True
 # Set test guild so the bot instantly registers the commands for the spotdl server.
 client = commands.InteractionBot(
     intents=intents,
-    test_guilds=[771628785447337985, 804093708437946418],
     sync_commands=True,
 )
 

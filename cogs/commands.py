@@ -82,8 +82,7 @@ class Commands(commands.Cog):
     ):
         if location == "pip":
             message = "To update spotDL, run `pip install -U spotdl`"
-
-        elif location == "master" or location == "dev":
+        else:
             message = f"To update spotDL, run `pip install -U https://codeload.github.com/spotDL/spotify-downloader/zip/{location}`"
 
         if force:
@@ -286,37 +285,37 @@ class Commands(commands.Cog):
         description="Administration Commands",
     )
     async def admin(self, inter: disnake.MessageCommandInteraction):
-        components = [
-            await self.admin_listener.build_button(
-                style=disnake.ButtonStyle.red, label="Shutdown Bot", step="shutdown"
+        message_components = [
+            await self.admin_listener.build_component(
+                style=disnake.ButtonStyle.red, label="Shutdown Bot", step="shutdown" # type: ignore
             ),
-            await self.admin_listener.build_button(
-                style=disnake.ButtonStyle.green, label="Restart Bot", step="restart"
+            await self.admin_listener.build_component(
+                style=disnake.ButtonStyle.green, label="Restart Bot", step="restart" # type: ignore
             ),
-            await self.admin_listener.build_button(
-                style=disnake.ButtonStyle.blurple, label="Update Bot", step="update"
+            await self.admin_listener.build_component(
+                style=disnake.ButtonStyle.blurple, label="Update Bot", step="update" # type: ignore
             ),
-            await self.admin_listener.build_button(
-                style=disnake.ButtonStyle.gray, label="VPS Info", step="vps"
+            await self.admin_listener.build_component(
+                style=disnake.ButtonStyle.gray, label="VPS Info", step="vps"  # type: ignore
             ),
         ]
 
-        if inter.author.id == inter.bot.owner.id:
-            await inter.send("Administration Controls", components=components)
+        if inter.bot.owner and inter.author.id == inter.bot.owner.id:
+            await inter.send("Administration Controls", components=message_components)
         else:
             await inter.send(
                 "You do not have permission to use this command.", ephemeral=True
             )
 
-    @components.button_listener()
+    @components.button_listener() # type: ignore
     async def admin_listener(
         self, inter: disnake.MessageCommandInteraction, *, step: str
     ):
 
         await inter.response.defer(with_message=True)
-        if inter.author.id != inter.bot.owner.id:
-            await inter.edit_original_message(
-                "You do not have permission to use this command.", ephemeral=True
+        if not inter.bot.owner or inter.author.id != inter.bot.owner.id:
+            await inter.edit_original_response(
+                "You do not have permission to use this command."
             )
             return
 
@@ -351,7 +350,7 @@ class Commands(commands.Cog):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            output, _ = process.communicate()
+            output, _ = process.stdout.decode(), process.stderr.decode()
             print(output)
             await inter.edit_original_message(f"Updated!\n```{output}```")
 
@@ -387,7 +386,7 @@ class Commands(commands.Cog):
                 ),
             )
 
-            await inter.edit_original_message(embeds=embed, components=None)
+            await inter.edit_original_message(embeds=list(embed), components=None)
 
 
 def setup(client: commands.InteractionBot):

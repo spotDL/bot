@@ -169,7 +169,7 @@ class Commands(commands.Cog):
 
     @commands.slash_command(
         name="visualcpp",
-        description="How to install Visual C++ Redistributable for Visual Studio and 2019 (on Windows)"
+        description="How to install Visual C++ Redistributable for Visual Studio and 2019 (on Windows)",
     )
     async def visualcpp(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
@@ -186,7 +186,6 @@ class Commands(commands.Cog):
             "Navigate to `Applications/Python 3.10`, and double click `Install Certificates.command`"
             "\n(Change 3.10 to relevant version number)"
         )
-    
 
     @commands.slash_command(
         name="github", description="Links to different spotDL documentation"
@@ -377,12 +376,9 @@ class Commands(commands.Cog):
                 stderr=subprocess.PIPE,
             )
             stdout, stderr = process.stdout.decode(), process.stderr.decode()
-            output = '\n'.join([stdout, stderr])
+            output = "\n".join([stdout, stderr])
             print(output)
-            await inter.edit_original_message(
-                "Updated!\n"
-                f"```{output}```"
-            )
+            await inter.edit_original_message("Updated!\n" f"```{output}```")
 
         if step == "vps":
             print("asked for vps info")

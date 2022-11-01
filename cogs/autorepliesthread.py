@@ -29,7 +29,7 @@ class AutoRepliesThread(commands.Cog):
                     name="spotDL Support",
                     icon_url=thread.guild.icon.url if thread.guild.icon else None,
                 )
-                .add_field(name="spotDL Version", value="Eg. `3.9.5`")
+                .add_field(name="spotDL Version", value="Eg. `4.0.0`")
                 .add_field(name="Operating System", value="Eg. ***Windows***")
                 .add_field(
                     name="The Command You Ran",

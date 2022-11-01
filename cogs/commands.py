@@ -41,7 +41,12 @@ class Commands(commands.Cog):
     @ffmpeg.sub_command(name="install", description="Instructions to install FFmpeg")
     async def ffmpeg_install(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
-            "Windows: [Download Binaries](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) then [follow tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)\nOSX: `brew install ffmpeg`\nUbuntu:`sudo apt install ffmpeg -y`"
+            "If using FFmpeg only for spotDL, you can install FFmpeg to your local directory.\n"
+            "`spotdl --download-ffmpeg` will download FFmpeg to your spotDL installation directory.\n"
+            "We recommend the above option, but if you want to install FFmpeg system-wide\n\n"
+            "Windows: [Download Binaries](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) then [follow tutorial](https://windowsloop.com/install-ffmpeg-windows-10/)\n"
+            "OSX: `brew install ffmpeg`\n"
+            "Linux:`sudo apt install ffmpeg -y` or use your distro's package manager"
         )
 
     @ffmpeg.sub_command(
@@ -54,7 +59,7 @@ class Commands(commands.Cog):
             color=0x0000FF,
         ).add_field(
             name="Specify path to FFmpeg",
-            value="If you don't want to add FFmpeg to your PATH, you can specify the path to the FFmpeg binary:\nAdd the `-f` or `--ffmpeg` flag to your command. e.g.\n`spotdl -f /path/to/ffmpeg.exe [trackUrl]`",
+            value="If you don't want to add FFmpeg to your PATH, you can specify the path to the FFmpeg binary:\nAdd the `--ffmpeg` flag to your command. e.g.\n`spotdl download --ffmpeg /path/to/ffmpeg.exe [trackUrl]`",
             inline=False,
         )
 
@@ -126,7 +131,7 @@ class Commands(commands.Cog):
     )
     async def outputformat(self, inter: disnake.MessageCommandInteraction):
         await inter.send(
-            "**How to change output format?**\nUse the `--format` flag.\nPossible formats are `mp3, ogg, flac, opus, m4a`\nE.g. `spotdl [trackUrl] --format opus`"
+            "**How to change output format?**\nUse the `--format` flag.\nPossible formats are `mp3, flac, opus, m4a`\nE.g. `spotdl download [trackUrl] --format opus`"
         )
 
     @commands.slash_command(
@@ -146,7 +151,7 @@ class Commands(commands.Cog):
             )
             .add_field(
                 name="Changing Output Directory",
-                value="Use the `--output` flag to change ouput directory, e.g. `spotdl [songUrl] --output /home/music/`\n\nYou can use flags to specify a custom path template. For example, your music could be sorted into nested folders per album. (`spotdl [songUrl] --output '{artist}/{album}/{title} - {artist}.{ext}'`\
+                value="Use the `--output` flag to change ouput directory, e.g. `spotdl download [songUrl] --output /home/music/`\n\nYou can use flags to specify a custom path template. For example, your music could be sorted into nested folders per album. (`spotdl [songUrl] --output '{artist}/{album}/{title} - {artist}.{ext}'`\
                         \nYou can use the following variables in your path template: `{title}, {artists}, {artist}, {album}, {album-artist}, {genre}, {disc-number}, {disc-count}, {duration}, {year}, {original-date}, {track-number}, {tracks-count}, {isrc}, {track-id}, {publisher}, {list-length}, {list-position}, {list-name}, {output-ext}`.",
                 inline=False,
             )
@@ -161,6 +166,27 @@ class Commands(commands.Cog):
         await inter.send(
             "**Test Song:**\n`spotdl download https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b`"
         )
+
+    @commands.slash_command(
+        name="visualcpp",
+        description="How to install Visual C++ Redistributable for Visual Studio and 2019 (on Windows)"
+    )
+    async def visualcpp(self, inter: disnake.MessageCommandInteraction):
+        await inter.send(
+            "1. Download the Visual C++ Redistributable for Visual Studio and 2019 from [here](https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)\n"
+            "2. Run the installer and follow the instructions\n"
+        )
+
+    @commands.slash_command(
+        name="certificates",
+        description="How to install SSL certificates on Mac OSX",
+    )
+    async def certificates(self, inter: disnake.MessageCommandInteraction):
+        await inter.send(
+            "Navigate to `Applications/Python 3.10`, and double click `Install Certificates.command`"
+            "\n(Change 3.10 to relevant version number)"
+        )
+    
 
     @commands.slash_command(
         name="github", description="Links to different spotDL documentation"
@@ -241,7 +267,7 @@ class Commands(commands.Cog):
     )
     async def zsh(self, inter):
         await inter.send(
-            'If you use Zsh terminal, **put the URL in quotes**, e.g.\n`spotdl "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"`'
+            'If you use Zsh terminal, **put the URL in quotes**, e.g.\n`spotdl download "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"`'
         )
 
     @commands.slash_command(
@@ -350,9 +376,13 @@ class Commands(commands.Cog):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-            output, _ = process.stdout.decode(), process.stderr.decode()
+            stdout, stderr = process.stdout.decode(), process.stderr.decode()
+            output = '\n'.join([stdout, stderr])
             print(output)
-            await inter.edit_original_message(f"Updated!\n```{output}```")
+            await inter.edit_original_message(
+                "Updated!\n"
+                f"```{output}```"
+            )
 
         if step == "vps":
             print("asked for vps info")

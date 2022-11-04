@@ -346,6 +346,7 @@ class Commands(commands.Cog):
 
         if step == "shutdown":
             os_name = platform.system()
+            await inter.send(f"Shutting down as per request from {inter.author.name}")
             print(f"Shutting down as per request from {inter.author.name}")
             logging.critical(f"Shutting down as per request from {inter.author.name}")
 
@@ -359,12 +360,14 @@ class Commands(commands.Cog):
                 os.kill(os.getpid(), signal.SIGINT)
 
         if step == "restart":
+            await inter.send(f"Restarting as per request from {inter.author.name}")
             print(f"Restarting as per request from {inter.author.name}")
             logging.critical(f"Restarting as per request from {inter.author.name}")
             await inter.edit_original_message("Restarting...", components=None)
             os.execv(sys.executable, ["python"] + sys.argv)
 
         if step == "update":
+            await inter.send(f"Updating as per request from {inter.author.name}")
             print(f"Updating as per request from {inter.author.name}")
             logging.critical(f"Updating as per request from {inter.author.name}")
 
@@ -409,10 +412,11 @@ class Commands(commands.Cog):
                             "%Y-%m-%d %H:%M:%S"
                         )
                     ),
-                ),
+                )
+                .set_author(name=inter.author, icon_url=inter.author.display_avatar.url)
             )
 
-            await inter.edit_original_message(embeds=list(embed), components=None)
+            await inter.edit_original_message(embed=embed, components=None)
 
 
 def setup(client: commands.InteractionBot):

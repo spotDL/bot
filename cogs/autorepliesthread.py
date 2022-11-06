@@ -14,6 +14,12 @@ class AutoRepliesThread(commands.Cog):
 
     @commands.Cog.listener()
     async def on_thread_create(self, thread: disnake.Thread):
+        # Check if thread owner is the bot.
+        thread_owner = await self._get_thread_owner(thread)
+
+        if thread_owner is None:
+            return
+
         # Check if thread chanel is on the forum channel
 
         if int(thread.parent_id) == int(SUPPORT_FORUM_CHANNEL_ID):
@@ -149,6 +155,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
     async def create_support_thread(
         self, inter: disnake.MessageCommandInteraction, message: disnake.Message
     ):
+        await inter.response.defer(with_message=True, ephemeral=True)
         # Check if team role is in user's role
 
         role_ids = [role.id for role in inter.author.roles]
@@ -157,8 +164,11 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             await inter.send("Sorry, you can't do that.", ephemeral=True)
             return
 
-        thread = await message.create_thread(
-            name=f"{message.author.name}'s Support Thread"
+        thread_channel = inter.bot.get_channel(int(SUPPORT_FORUM_CHANNEL_ID))
+        content = f"{message.content}\n===========\n**Original message link:** {message.jump_url}"
+        thread, open_message = await thread_channel.create_thread(
+            name=f"{inter.author.display_name}'s Support Thread",
+            content=content,
         )
 
         # Build embed
@@ -189,8 +199,11 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         )  # type: ignore
 
         await thread.send(embed=embed, components=archive_btn)
+        await thread.send(
+            f"Hey, {message.author.mention}, a support thread was opened to you by {inter.author.mention}"
+        )
         await inter.send(
-            "A support thread has been successfully created for this user.",
+            f"A support thread has been successfully created for this user at {thread.mention}.",
             ephemeral=True,
         )
 

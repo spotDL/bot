@@ -3,6 +3,8 @@ import disnake
 from disnake.ext import commands, components
 from disnake.channel import TextChannel, VoiceChannel
 from disnake.threads import Thread
+import logging
+import traceback
 import os
 
 SUPPORT_FORUM_CHANNEL_ID = os.getenv("SUPPORT_FORUM_CHANNEL_ID", "0")
@@ -14,6 +16,9 @@ class AutoRepliesThread(commands.Cog):
 
     @commands.Cog.listener()
     async def on_thread_create(self, thread: disnake.Thread):
+
+        logging.info("A thread was created.")
+
         # Check if thread owner is the bot.
         thread_owner = await self._get_thread_owner(thread)
 
@@ -55,6 +60,8 @@ class AutoRepliesThread(commands.Cog):
             await thread.send(embed=embed, components=archive_btn)
             owner = await self._get_thread_owner(thread)
             await thread.send(owner.mention)
+
+            logging.info("Info messages were sent.")
 
     @commands.Cog.listener()
     async def on_message(self, msg: disnake.Message):
@@ -130,7 +137,6 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             and thread_owner.id == inter.author.id
             or int(TEAM_ROLE_ID) in user_roles
         ):
-
             await inter.send(
                 f"Thread archived by {inter.author.mention}.\nAnyone can send a message to unarchive it.",
             )
@@ -142,9 +148,19 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                     disabled=True,
                 )
             )
+            logging.info("Archive messages sent.")
 
-            await thread.edit(archived=True)  # type: ignore
+            try:
+                await thread.edit(archived=True)  # type: ignore
+
+            except:
+                logging.error(traceback.format_exc())
+
         else:
+            logging.warn(
+                f"{inter.author} does not have permissions to manage the thread."
+            )
+
             # If they aren't author or team member, give silent error message.
             await inter.send(
                 "You need to be the thread author to archive this thread.",
@@ -158,9 +174,13 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         await inter.response.defer(with_message=True, ephemeral=True)
         # Check if team role is in user's role
 
+        logging.info(
+            f"{inter.author} attempted to create a Support Thread on message: {message.jump_url}"
+        )
         role_ids = [role.id for role in inter.author.roles]
 
         if not int(TEAM_ROLE_ID) in role_ids:
+            logging.info(f"{inter.author} did not have enough perms.")
             await inter.send("Sorry, you can't do that.", ephemeral=True)
             return
 
@@ -171,6 +191,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             content=content,
         )
 
+        logging.info(f"Thread created")
         # Build embed
         embed = (
             disnake.Embed(
@@ -206,6 +227,8 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             f"A support thread has been successfully created for this user at {thread.mention}.",
             ephemeral=True,
         )
+
+        logging.info("Info messages were sent.")
 
     async def _get_thread_owner(
         self, thread: disnake.Thread

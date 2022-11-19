@@ -9,10 +9,20 @@ import os
 
 SUPPORT_FORUM_CHANNEL_ID = os.getenv("SUPPORT_FORUM_CHANNEL_ID", "0")
 TEAM_ROLE_ID = os.getenv("TEAM_ROLE_ID", "0")
+LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 
 
 class AutoRepliesThread(commands.Cog):
     """This cog handles thread creation in the forum channel"""
+
+    def __init__(self, bot: commands.InteractionBot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+
+        # Get the channel here to ensure it does not return None.
+        self.logs_channel = self.bot.get_channel(int(LOG_CHANNEL_ID))
 
     @commands.Cog.listener()
     async def on_thread_create(self, thread: disnake.Thread):
@@ -62,6 +72,14 @@ class AutoRepliesThread(commands.Cog):
             await thread.send(owner.mention)
 
             logging.info("Info messages were sent.")
+
+            log_embed = disnake.Embed(
+                title="Thread Created",
+                description=f"{thread.mention} was created.",
+                color=disnake.Color.blurple(),
+            )
+
+            await self.logs_channel.send(embed=log_embed)
 
     @commands.slash_command(
         name="autoreplies", description="Lists all automatic replies."
@@ -198,6 +216,14 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             )
             logging.info("Archive messages sent.")
 
+            log_embed = disnake.Embed(
+                title="Thread Archived",
+                description=f"{thread.mention} was archived.",
+                color=disnake.Color.blurple(),
+            )
+
+            await self.logs_channel.send(embed=log_embed)
+
             try:
                 await thread.edit(archived=True)  # type: ignore
 
@@ -271,6 +297,14 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         await thread.send(
             f"Hey, {message.author.mention}, a support thread was opened to you by {inter.author.mention}"
         )
+
+        log_embed = disnake.Embed(
+            title="Thread Created",
+            description=f"{thread.mention} was created.",
+            color=disnake.Color.blurple(),
+        )
+        await self.logs_channel.send(embed=log_embed)
+
         await inter.send(
             f"A support thread has been successfully created for this user at {thread.mention}.",
             ephemeral=True,
@@ -296,6 +330,32 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
 
         return thread_owner
 
+    @commands.Cog.listener()
+    async def on_message_command_error(
+        self, inter: disnake.MessageCommandInteraction, error: commands.CommandError
+    ):
+        await inter.send("Sorry, something went wrong.", ephemeral=True)
+        logging.critical(error)
+
+        embed = disnake.Embed(
+            title="Error", description=error, color=disnake.Color.red()
+        )
+
+        await self.logs_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_slash_command(
+        self, inter: disnake.MessageCommandInteraction, error: commands.CommandError
+    ):
+        await inter.send("Sorry, an error occured.", ephemeral=True)
+        logging.critical(error)
+
+        embed = disnake.Embed(
+            title="Error", description=error, color=disnake.Color.red()
+        )
+
+        await self.logs_channel.send(embed=embed)
+
 
 def setup(client: commands.InteractionBot):
-    client.add_cog(AutoRepliesThread())
+    client.add_cog(AutoRepliesThread(client))

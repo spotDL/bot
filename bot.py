@@ -32,6 +32,7 @@ intents.message_content = True
 client = commands.InteractionBot(
     intents=intents,
     sync_commands=True,
+    reload=True,
 )
 
 

@@ -229,6 +229,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
 
             except:
                 logging.error(traceback.format_exc())
+                await inter.send("There was an error archiving this thread.")
 
         else:
             logging.warn(

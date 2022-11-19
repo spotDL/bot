@@ -63,6 +63,54 @@ class AutoRepliesThread(commands.Cog):
 
             logging.info("Info messages were sent.")
 
+    @commands.slash_command(
+        name="autoreplies", description="Lists all automatic replies."
+    )
+    async def autoreplies(self, inter: disnake.MessageCommandInteraction):
+        embed = (
+            disnake.Embed(
+                title="spotDL Bot Autoreplies",
+                color=disnake.Color.green(),
+            )
+            .add_field(
+                name="dll load failed",
+                value="On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist",
+                inline=False,
+            )
+            .add_field(
+                name="unable to get audio stream",
+                value="On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.10`, and double click `Install Certificates.command`\n(Change 3.10 to relevant version number)",
+                inline=False,
+            )
+            .add_field(
+                name="could not match any of the results on youtube",
+                value="**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>",
+                inline=False,
+            )
+            .add_field(
+                name="&dl_branch=1 || &utm_source",
+                value="**You must remove `&dl_branch=1`/`&utm_source` from URLs, since the `&` is a control operator in terminal**",
+                inline=False,
+            )
+            .add_field(
+                name="'spotdl' is not recognized",
+                value="**Python/(site packages) is not added to PATH correctly.**\nYou need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png",
+                inline=False,
+            )
+            .add_field(
+                name="error: http error 410: gone",
+                value="This error has been patched. Update spotDL - `pip install -U --force spotdl`",
+                inline=False,
+            )
+            .add_field(
+                name="requests>=2.25.0",
+                value="Outdated packages. `pip install -U --force requests urllib3 chardet`\nChange `pip` to `pip3` if running *UNIX*",
+                inline=False,
+            )
+        )
+
+        await inter.send(embed=embed, ephemeral=True)
+
     @commands.Cog.listener()
     async def on_message(self, msg: disnake.Message):
         # Only process if message is not sent by a bot.

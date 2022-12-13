@@ -3,17 +3,32 @@ import disnake
 from disnake.ext import commands, components
 from disnake.channel import TextChannel, VoiceChannel
 from disnake.threads import Thread
+import logging
+import traceback
 import os
 
 SUPPORT_FORUM_CHANNEL_ID = os.getenv("SUPPORT_FORUM_CHANNEL_ID", "0")
 TEAM_ROLE_ID = os.getenv("TEAM_ROLE_ID", "0")
+LOG_CHANNEL_ID = os.getenv("LOG_CHANNEL_ID")
 
 
 class AutoRepliesThread(commands.Cog):
     """This cog handles thread creation in the forum channel"""
 
+    def __init__(self, bot: commands.InteractionBot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+
+        # Get the channel here to ensure it does not return None.
+        self.logs_channel = self.bot.get_channel(int(LOG_CHANNEL_ID))
+
     @commands.Cog.listener()
     async def on_thread_create(self, thread: disnake.Thread):
+
+        logging.info("A thread was created.")
+
         # Check if thread owner is the bot.
         thread_owner = await self._get_thread_owner(thread)
 
@@ -55,6 +70,64 @@ class AutoRepliesThread(commands.Cog):
             await thread.send(embed=embed, components=archive_btn)
             owner = await self._get_thread_owner(thread)
             await thread.send(owner.mention)
+
+            logging.info("Info messages were sent.")
+
+            log_embed = disnake.Embed(
+                title="Thread Created",
+                description=f"{thread.mention} was created.",
+                color=disnake.Color.blurple(),
+            )
+
+            await self.logs_channel.send(embed=log_embed)
+
+    @commands.slash_command(
+        name="autoreplies", description="Lists all automatic replies."
+    )
+    async def autoreplies(self, inter: disnake.MessageCommandInteraction):
+        embed = (
+            disnake.Embed(
+                title="spotDL Bot Autoreplies",
+                color=disnake.Color.green(),
+            )
+            .add_field(
+                name="dll load failed",
+                value="On Windows? You need to install Visual C++ 2019 redistributable\nhttps://docs.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist",
+                inline=False,
+            )
+            .add_field(
+                name="unable to get audio stream",
+                value="On OSX? You need to install SSL certificates\nNavigate to `Applications/Python 3.10`, and double click `Install Certificates.command`\n(Change 3.10 to relevant version number)",
+                inline=False,
+            )
+            .add_field(
+                name="could not match any of the results on youtube",
+                value="**YouTube Music must be available in your country for spotDL to work. This is because we use YouTube Music to filter search results. You can check if YouTube Music is available in your country, by visiting YouTube Music.** <https://music.youtube.com/>",
+                inline=False,
+            )
+            .add_field(
+                name="&dl_branch=1 || &utm_source",
+                value="**You must remove `&dl_branch=1`/`&utm_source` from URLs, since the `&` is a control operator in terminal**",
+                inline=False,
+            )
+            .add_field(
+                name="'spotdl' is not recognized",
+                value="**Python/(site packages) is not added to PATH correctly.**\nYou need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png",
+                inline=False,
+            )
+            .add_field(
+                name="error: http error 410: gone",
+                value="This error has been patched. Update spotDL - `pip install -U --force spotdl`",
+                inline=False,
+            )
+            .add_field(
+                name="requests>=2.25.0",
+                value="Outdated packages. `pip install -U --force requests urllib3 chardet`\nChange `pip` to `pip3` if running *UNIX*",
+                inline=False,
+            )
+        )
+
+        await inter.send(embed=embed, ephemeral=True)
 
     @commands.Cog.listener()
     async def on_message(self, msg: disnake.Message):
@@ -130,7 +203,6 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             and thread_owner.id == inter.author.id
             or int(TEAM_ROLE_ID) in user_roles
         ):
-
             await inter.send(
                 f"Thread archived by {inter.author.mention}.\nAnyone can send a message to unarchive it.",
             )
@@ -142,9 +214,28 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
                     disabled=True,
                 )
             )
+            logging.info("Archive messages sent.")
 
-            await thread.edit(archived=True)  # type: ignore
+            log_embed = disnake.Embed(
+                title="Thread Archived",
+                description=f"{thread.mention} was archived.",
+                color=disnake.Color.blurple(),
+            )
+
+            await self.logs_channel.send(embed=log_embed)
+
+            try:
+                await thread.edit(archived=True)  # type: ignore
+
+            except:
+                logging.error(traceback.format_exc())
+                await inter.send("There was an error archiving this thread.")
+
         else:
+            logging.warn(
+                f"{inter.author} does not have permissions to manage the thread."
+            )
+
             # If they aren't author or team member, give silent error message.
             await inter.send(
                 "You need to be the thread author to archive this thread.",
@@ -158,9 +249,13 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         await inter.response.defer(with_message=True, ephemeral=True)
         # Check if team role is in user's role
 
+        logging.info(
+            f"{inter.author} attempted to create a Support Thread on message: {message.jump_url}"
+        )
         role_ids = [role.id for role in inter.author.roles]
 
         if not int(TEAM_ROLE_ID) in role_ids:
+            logging.info(f"{inter.author} did not have enough perms.")
             await inter.send("Sorry, you can't do that.", ephemeral=True)
             return
 
@@ -171,6 +266,7 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
             content=content,
         )
 
+        logging.info(f"Thread created")
         # Build embed
         embed = (
             disnake.Embed(
@@ -202,10 +298,20 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
         await thread.send(
             f"Hey, {message.author.mention}, a support thread was opened to you by {inter.author.mention}"
         )
+
+        log_embed = disnake.Embed(
+            title="Thread Created",
+            description=f"{thread.mention} was created.",
+            color=disnake.Color.blurple(),
+        )
+        await self.logs_channel.send(embed=log_embed)
+
         await inter.send(
             f"A support thread has been successfully created for this user at {thread.mention}.",
             ephemeral=True,
         )
+
+        logging.info("Info messages were sent.")
 
     async def _get_thread_owner(
         self, thread: disnake.Thread
@@ -225,6 +331,32 @@ The moderation team may not be able to assist you. Please refer to <#79693971282
 
         return thread_owner
 
+    @commands.Cog.listener()
+    async def on_message_command_error(
+        self, inter: disnake.MessageCommandInteraction, error: commands.CommandError
+    ):
+        await inter.send("Sorry, something went wrong.", ephemeral=True)
+        logging.critical(error)
+
+        embed = disnake.Embed(
+            title="Error", description=error, color=disnake.Color.red()
+        )
+
+        await self.logs_channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_slash_command(
+        self, inter: disnake.MessageCommandInteraction, error: commands.CommandError
+    ):
+        await inter.send("Sorry, an error occured.", ephemeral=True)
+        logging.critical(error)
+
+        embed = disnake.Embed(
+            title="Error", description=error, color=disnake.Color.red()
+        )
+
+        await self.logs_channel.send(embed=embed)
+
 
 def setup(client: commands.InteractionBot):
-    client.add_cog(AutoRepliesThread())
+    client.add_cog(AutoRepliesThread(client))

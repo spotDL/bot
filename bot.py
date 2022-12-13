@@ -17,7 +17,7 @@ if not os.path.exists("logs"):
     os.mkdir("logs")  # Creating a folder for logs if it doesn't exist
 
 logging.basicConfig(
-    level=logging.WARNING,
+    level=logging.INFO,
     format="%(levelname)s %(asctime)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
     filemode="a",
@@ -32,6 +32,7 @@ intents.message_content = True
 client = commands.InteractionBot(
     intents=intents,
     sync_commands=True,
+    reload=True,
 )
 
 

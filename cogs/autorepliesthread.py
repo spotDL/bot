@@ -52,6 +52,7 @@ class AutoRepliesThread(commands.Cog):
             "'spotdl' is not recognized": "**Python/(site packages) is not added to PATH correctly.**\nYou need to install Python from <https://www.python.org/downloads/>\n\nEnsure to add to PATH when installing:\nhttps://i.imgur.com/jWq5EnV.png",
             "error: http error 410: gone": "This error has been patched. Update spotDL - `pip install -U --force spotdl`",
             "requests>=2.25.0": "Outdated packages. `pip install -U --force requests urllib3 chardet`\nChange `pip` to `pip3` if running *UNIX",
+            "zsh: no matches found": 'If you use Zsh terminal, put the URL in quotes, e.g.\n`spotdl download "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"`',
         }
 
     # * Utility functions

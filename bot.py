@@ -27,6 +27,7 @@ logging.basicConfig(
 
 intents = disnake.Intents.default()
 intents.message_content = True
+intents.members = True
 
 # Set test guild so the bot instantly registers the commands for the spotdl server.
 client = commands.InteractionBot(

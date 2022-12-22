@@ -1,8 +1,5 @@
-from typing import Union, Literal
 import disnake
 from disnake.ext import commands, components
-from disnake.channel import TextChannel, VoiceChannel
-from disnake.threads import Thread
 import logging
 import traceback
 import os

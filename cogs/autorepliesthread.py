@@ -4,7 +4,7 @@ import logging
 import traceback
 import os
 import datetime
-
+import asyncio
 
 SUPPORT_FORUM_CHANNEL_ID = os.getenv("SUPPORT_FORUM_CHANNEL_ID", "0")
 TEAM_ROLE_ID = os.getenv("TEAM_ROLE_ID", "0")
@@ -104,6 +104,9 @@ class AutoRepliesThread(commands.Cog):
         if not (int(thread.parent_id) == int(SUPPORT_FORUM_CHANNEL_ID)):
             return
 
+        # Wait couple seconds to send opener message to avoid any errors
+        await asyncio.sleep(4)
+
         # "Archive" button component
         archive_btn = await self.archive_listener.build_component(
             style=disnake.ButtonStyle.green, label="Archive Thread as Resolved"
@@ -190,7 +193,6 @@ class AutoRepliesThread(commands.Cog):
             name=f"{message.author.display_name}'s Support Thread",
             content=content,
         )
-
         await thread.send(
             f"Hey, {message.author.mention}, a support thread was opened to you by {inter.author.mention}"
         )
